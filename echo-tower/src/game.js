@@ -1,12 +1,15 @@
-// Game controller: screens, input, tweening, HUD. Owns a logic `state`
-// (immutable — every move produces a new one) and renders through Renderer.
+// Game controller: screens, input (keyboard + touch), tweening, HUD.
+// Owns a logic `state` (immutable — every move produces a new one) and
+// renders through Renderer.
 
 import { LEVELS } from './levels.js';
 import { parseLevel, step, DIRS } from './logic.js';
-import { Renderer, TILE } from './render.js';
+import { Renderer } from './render.js';
 import { Sound } from './audio.js';
+import { floorScore } from './score.js';
 
 const TWEEN_MS = 140;
+const SWIPE_MIN_PX = 24;
 const STORAGE_UNLOCKED = 'echoTower.unlocked';
 
 const KEY_DIRS = {
@@ -16,12 +19,12 @@ const KEY_DIRS = {
 };
 
 export class Game {
-  constructor({ canvas, overlay, floorLabel, movesLabel, hintLabel }) {
+  constructor({ canvas, overlay, floorLabel, scoreLabel, hintLabel }) {
     this.renderer = new Renderer(canvas);
     this.sound = new Sound();
     this.overlay = overlay;
     this.floorLabel = floorLabel;
-    this.movesLabel = movesLabel;
+    this.scoreLabel = scoreLabel;
     this.hintLabel = hintLabel;
 
     this.screen = 'title';
@@ -33,9 +36,12 @@ export class Game {
     this.queue = [];
     this.facing = { dx: 0, dy: 1 };
     this.levelStartedAt = 0;
-    this.totalMoves = 0;
+    this.totalScore = 0;
 
     window.addEventListener('keydown', (e) => this.onKey(e));
+    this.overlay.addEventListener('click', (e) => this.onOverlayClick(e));
+    this.setupTouch(canvas);
+    this.setupToolbar();
     requestAnimationFrame((t) => this.frame(t));
     this.showTitle();
   }
@@ -57,14 +63,16 @@ export class Game {
     this.sound.stopMusic();
     this.renderTitle();
     this.floorLabel.textContent = 'Echo Tower';
-    this.movesLabel.textContent = '';
+    this.scoreLabel.textContent = '';
     this.hintLabel.textContent = '';
   }
 
   renderTitle() {
     const floors = this.unlocked > 0
       ? `<p class="picker">Start on floor
-           <span class="floor-num">&larr; ${this.selectedFloor + 1} &rarr;</span>
+           <button class="mini" data-action="floor-prev">&larr;</button>
+           <span class="floor-num">${this.selectedFloor + 1}</span>
+           <button class="mini" data-action="floor-next">&rarr;</button>
            <span class="soft">of ${LEVELS.length}</span></p>`
       : '';
     this.overlay.innerHTML = `
@@ -72,13 +80,16 @@ export class Game {
         <h1>Echo Tower</h1>
         <p class="tagline">The statues echo your every move.<br>Outwit them, floor by floor.</p>
         <div class="keys-grid">
-          <span><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>move</span>
+          <span><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd> / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or swipe</span><span>move</span>
           <span><kbd>R</kbd></span><span>restart floor</span>
+          <span><kbd>Q</kbd></span><span>quit to title</span>
           <span><kbd>M</kbd></span><span>sound on/off</span>
           <span><kbd>Esc</kbd></span><span>pause</span>
         </div>
+        <p class="touch-help">Swipe — or tap a square beside you — to move.<br>
+        Reach the stairs on each floor.</p>
         ${floors}
-        <p class="cta">Press <kbd>Enter</kbd> to play</p>
+        <p class="cta"><button class="big" data-action="confirm">Play</button></p>
         <p class="credit">A <a href="https://sketchplanations.com" target="_blank" rel="noopener">Sketchplanations</a> experiment</p>
       </div>`;
     this.overlay.classList.remove('hidden');
@@ -97,28 +108,30 @@ export class Game {
     this.renderer.resizeFor(this.state);
     this.floorLabel.textContent = `Floor ${index + 1} · ${this.state.name}`;
     this.hintLabel.textContent = this.state.hint;
-    this.updateMovesLabel();
+    this.updateScoreLabel();
     this.sound.startMusic();
   }
 
-  updateMovesLabel() {
-    this.movesLabel.textContent = this.state.moves === 0 ? '' : `${this.state.moves} moves`;
+  updateScoreLabel() {
+    this.scoreLabel.textContent = this.totalScore > 0 ? `Score ${this.totalScore}` : '';
   }
 
   showComplete() {
     this.screen = 'complete';
-    const secs = Math.round((Date.now() - this.levelStartedAt) / 1000);
-    this.totalMoves += this.state.moves;
+    const secs = (Date.now() - this.levelStartedAt) / 1000;
+    const gain = floorScore(this.state.moves, secs);
+    this.totalScore += gain;
+    this.updateScoreLabel();
     const last = this.levelIndex === LEVELS.length - 1;
     if (!last) this.unlock(this.levelIndex + 1);
     this.overlay.innerHTML = `
       <div class="panel">
         <h2>${last ? 'You reached the top!' : `Floor ${this.levelIndex + 1} cleared`}</h2>
-        <p class="stats">${this.state.moves} moves &middot; ${secs}s</p>
+        <p class="stats">+${gain} &middot; score ${this.totalScore}</p>
         ${last
           ? `<p class="tagline">The tower is quiet. The statues rest&hellip; for now.</p>
-             <p class="cta">Press <kbd>Enter</kbd> for the title screen</p>`
-          : `<p class="cta">Press <kbd>Enter</kbd> for floor ${this.levelIndex + 2}</p>`}
+             <p class="cta"><button class="big" data-action="confirm">Title screen</button></p>`
+          : `<p class="cta"><button class="big" data-action="confirm">Floor ${this.levelIndex + 2} &rarr;</button></p>`}
       </div>`;
     this.overlay.classList.remove('hidden');
   }
@@ -128,10 +141,10 @@ export class Game {
     this.overlay.innerHTML = `
       <div class="panel">
         <h2>Paused</h2>
-        <div class="keys-grid">
-          <span><kbd>Esc</kbd></span><span>resume</span>
-          <span><kbd>R</kbd></span><span>restart floor</span>
-          <span><kbd>Q</kbd></span><span>quit to title</span>
+        <div class="btn-col">
+          <button data-action="resume">Resume <kbd>Esc</kbd></button>
+          <button data-action="restart">Restart floor <kbd>R</kbd></button>
+          <button data-action="quit">Quit to title <kbd>Q</kbd></button>
         </div>
       </div>`;
     this.overlay.classList.remove('hidden');
@@ -140,6 +153,19 @@ export class Game {
   resume() {
     this.screen = 'playing';
     this.overlay.classList.add('hidden');
+  }
+
+  // Enter/tap: the default "go" action for the current screen.
+  confirm() {
+    if (this.screen === 'title') {
+      this.totalScore = 0;
+      this.startLevel(this.selectedFloor);
+    } else if (this.screen === 'complete') {
+      if (this.levelIndex === LEVELS.length - 1) this.showTitle();
+      else this.startLevel(this.levelIndex + 1);
+    } else if (this.screen === 'paused') {
+      this.resume();
+    }
   }
 
   // --- input -----------------------------------------------------------
@@ -159,22 +185,18 @@ export class Game {
       case 'title':
         if (k === 'Enter' || k === ' ') {
           e.preventDefault();
-          this.totalMoves = 0;
-          this.startLevel(this.selectedFloor);
-        } else if (k === 'ArrowLeft' && this.selectedFloor > 0) {
-          this.selectedFloor--;
-          this.renderTitle();
-        } else if (k === 'ArrowRight' && this.selectedFloor < this.unlocked) {
-          this.selectedFloor++;
-          this.renderTitle();
+          this.confirm();
+        } else if (k === 'ArrowLeft') {
+          this.pickFloor(-1);
+        } else if (k === 'ArrowRight') {
+          this.pickFloor(1);
         }
         return;
 
       case 'complete':
         if (k === 'Enter' || k === ' ') {
           e.preventDefault();
-          if (this.levelIndex === LEVELS.length - 1) this.showTitle();
-          else this.startLevel(this.levelIndex + 1);
+          this.confirm();
         }
         return;
 
@@ -188,16 +210,95 @@ export class Game {
         const dir = KEY_DIRS[k];
         if (dir) {
           e.preventDefault();
-          if (this.queue.length < 2) this.queue.push(dir);
+          this.enqueue(dir);
           return;
         }
         if (k === 'r' || k === 'R') this.startLevel(this.levelIndex);
+        else if (k === 'q' || k === 'Q') this.showTitle();
         else if (k === 'Escape') this.showPause();
         else if (k === ']') this.startLevel(Math.min(this.levelIndex + 1, LEVELS.length - 1));
         else if (k === '[') this.startLevel(Math.max(this.levelIndex - 1, 0));
         return;
       }
     }
+  }
+
+  pickFloor(delta) {
+    const next = this.selectedFloor + delta;
+    if (next >= 0 && next <= this.unlocked) {
+      this.selectedFloor = next;
+      this.renderTitle();
+    }
+  }
+
+  enqueue(dir) {
+    if (this.queue.length < 2) this.queue.push(dir);
+  }
+
+  onOverlayClick(e) {
+    const action = e.target.closest('[data-action]')?.dataset.action;
+    switch (action) {
+      case 'confirm': this.confirm(); return;
+      case 'resume': this.resume(); return;
+      case 'restart': this.startLevel(this.levelIndex); return;
+      case 'quit': this.showTitle(); return;
+      case 'floor-prev': this.pickFloor(-1); return;
+      case 'floor-next': this.pickFloor(1); return;
+      default:
+        // Tapping anywhere on the "cleared" overlay advances — feels right on touch.
+        if (this.screen === 'complete') this.confirm();
+    }
+  }
+
+  // Touch / pointer: swipe anywhere on the board to step in that direction,
+  // or tap a square orthogonally adjacent to the player.
+  setupTouch(canvas) {
+    let start = null;
+    canvas.addEventListener('pointerdown', (e) => {
+      start = { x: e.clientX, y: e.clientY };
+      if (e.pointerType === 'touch') e.preventDefault();
+    });
+    canvas.addEventListener('pointerup', (e) => {
+      if (!start || this.screen !== 'playing') { start = null; return; }
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      start = null;
+      if (Math.hypot(dx, dy) >= SWIPE_MIN_PX) {
+        const dir = Math.abs(dx) > Math.abs(dy)
+          ? (dx > 0 ? 'right' : 'left')
+          : (dy > 0 ? 'down' : 'up');
+        this.enqueue(dir);
+      } else {
+        this.tapMove(e);
+      }
+    });
+    canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+  }
+
+  tapMove(e) {
+    const rect = this.renderer.canvas.getBoundingClientRect();
+    const tx = Math.floor(((e.clientX - rect.left) / rect.width) * this.state.width);
+    const ty = Math.floor(((e.clientY - rect.top) / rect.height) * this.state.height);
+    const dx = tx - this.state.player.x;
+    const dy = ty - this.state.player.y;
+    if (Math.abs(dx) + Math.abs(dy) !== 1) return;
+    this.enqueue(dx === 1 ? 'right' : dx === -1 ? 'left' : dy === 1 ? 'down' : 'up');
+  }
+
+  // Footer buttons (always clickable; mainly for touch devices).
+  setupToolbar() {
+    document.getElementById('btn-restart')?.addEventListener('click', () => {
+      if (this.screen === 'playing' || this.screen === 'paused') this.startLevel(this.levelIndex);
+    });
+    document.getElementById('btn-menu')?.addEventListener('click', () => {
+      if (this.screen === 'playing') this.showPause();
+      else if (this.screen === 'paused') this.resume();
+    });
+    document.getElementById('btn-sound')?.addEventListener('click', () => {
+      const on = this.sound.toggle();
+      if (on && this.screen === 'playing') this.sound.startMusic();
+      this.flashHint(`Sound ${on ? 'on' : 'off'}`);
+    });
   }
 
   flashHint(text) {
@@ -223,7 +324,6 @@ export class Game {
     this.tweenStart = performance.now();
     this.facing = { dx: DIRS[dir].dx, dy: DIRS[dir].dy };
     for (const ev of events) this.sound.play(ev);
-    this.updateMovesLabel();
     if (after.won) {
       // Let the final step finish animating before the overlay appears.
       setTimeout(() => this.showComplete(), TWEEN_MS + 180);

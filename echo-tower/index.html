@@ -12,7 +12,7 @@
   <div id="frame">
     <header>
       <span id="floor-label">Echo Tower</span>
-      <span id="moves-label"></span>
+      <span id="score-label"></span>
     </header>
     <div id="stage">
       <canvas id="game" width="640" height="384"></canvas>
@@ -20,7 +20,12 @@
     </div>
     <footer>
       <span id="hint"></span>
-      <span id="keys"><kbd>&larr;&uarr;&darr;&rarr;</kbd> move &middot; <kbd>R</kbd> restart &middot; <kbd>M</kbd> sound &middot; <kbd>Esc</kbd> pause</span>
+      <span id="keys"><kbd>&larr;&uarr;&darr;&rarr;</kbd> move &middot; <kbd>R</kbd> restart &middot; <kbd>Q</kbd> quit &middot; <kbd>M</kbd> sound &middot; <kbd>Esc</kbd> pause</span>
+      <span id="touch-buttons">
+        <button id="btn-restart" type="button">Restart</button>
+        <button id="btn-sound" type="button">Sound</button>
+        <button id="btn-menu" type="button">Menu</button>
+      </span>
     </footer>
   </div>
   <script type="module" src="src/main.js"></script>

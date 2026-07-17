@@ -154,21 +154,20 @@ export class Renderer {
     const ctx = this.ctx;
     ctx.strokeStyle = INK;
     ctx.lineWidth = 2;
-    // Three ascending steps
-    const steps = 3;
+    // Steps ascending from left to right
+    const steps = 4;
+    const w = (TILE - 16) / steps;
     for (let i = 0; i < steps; i++) {
-      const w = TILE - 16 - i * 12;
-      const sy = py + TILE - 12 - i * 13;
-      ctx.strokeRect(px + (TILE - w) / 2, sy, w, 11);
+      const h = 9 + i * 10;
+      ctx.strokeRect(px + 8 + i * w, py + TILE - 9 - h, w, h);
     }
-    // Up arrow
+    // Small arrow pointing up the staircase
     ctx.beginPath();
-    const cx = px + TILE / 2;
-    ctx.moveTo(cx, py + 24);
-    ctx.lineTo(cx, py + 8);
-    ctx.moveTo(cx - 6, py + 14);
-    ctx.lineTo(cx, py + 8);
-    ctx.lineTo(cx + 6, py + 14);
+    ctx.moveTo(px + 12, py + 26);
+    ctx.lineTo(px + 26, py + 12);
+    ctx.moveTo(px + 17, py + 12);
+    ctx.lineTo(px + 26, py + 12);
+    ctx.lineTo(px + 26, py + 21);
     ctx.stroke();
   }
 
