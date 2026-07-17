@@ -6,6 +6,7 @@ Experimental web projects — small experiments and playable demos, mostly built
 
 | Project | Description |
 |---------|-------------|
+| [Echo Tower](echo-tower/) | A top-down puzzle game where statues echo your every move. Plain JS + Canvas. |
 | [First Godot game (web)](first-game-test-1/) | A first Godot game exported for the web — play in the browser. |
 
 ---

@@ -1,0 +1,10 @@
+{
+  "name": "echo-tower",
+  "version": "0.1.0",
+  "description": "A top-down grid puzzle game where statues echo your moves. A Sketchplanations experiment.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.js'",
+    "check-levels": "node tools/check-levels.js"
+  }
+}

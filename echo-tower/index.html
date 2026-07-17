@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echo Tower</title>
+  <meta name="description" content="A tiny top-down puzzle game where statues echo your every move. A Sketchplanations experiment." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128511;</text></svg>" />
+</head>
+<body>
+  <div id="frame">
+    <header>
+      <span id="floor-label">Echo Tower</span>
+      <span id="moves-label"></span>
+    </header>
+    <div id="stage">
+      <canvas id="game" width="640" height="384"></canvas>
+      <div id="overlay" class="hidden"></div>
+    </div>
+    <footer>
+      <span id="hint"></span>
+      <span id="keys"><kbd>&larr;&uarr;&darr;&rarr;</kbd> move &middot; <kbd>R</kbd> restart &middot; <kbd>M</kbd> sound &middot; <kbd>Esc</kbd> pause</span>
+    </footer>
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
