@@ -1,9 +1,10 @@
 import { Game } from './game.js';
 
-new Game({
+// Exposed on window for debugging and automated playtesting.
+window.echoTower = new Game({
   canvas: document.getElementById('game'),
   overlay: document.getElementById('overlay'),
   floorLabel: document.getElementById('floor-label'),
-  movesLabel: document.getElementById('moves-label'),
+  scoreLabel: document.getElementById('score-label'),
   hintLabel: document.getElementById('hint'),
 });

@@ -14,6 +14,7 @@ src/
   logic.js      PURE game rules: parseLevel(), step(state, dir), no DOM.
   levels.js     level data — ASCII maps. Add levels here.
   solver.js     BFS solver used by tests and the level checker.
+  score.js      per-floor score from moves+time. Never shown raw to players.
   render.js     Canvas renderer. All "sprites" are drawn procedurally.
   audio.js      WebAudio-synthesised sound effects + ambient pad. No files.
   game.js       controller: screens, input, tween animation, HUD, storage.
@@ -98,9 +99,21 @@ music is wanted. `M` toggles all sound; preference persists in localStorage.
   start on any unlocked floor with ←/→).
 - `echoTower.sound` — 'on' / 'off'.
 
-## Dev keys
+## Dev keys & debugging
 
-`[` / `]` — jump to previous/next floor while playing (undocumented in UI).
+- `[` / `]` — jump to previous/next floor while playing (undocumented in UI).
+- `window.echoTower` — the live Game instance (inspect `echoTower.state`,
+  call `echoTower.startLevel(n)`, etc.). Also how automated browser
+  playtests drive the game: dispatch `KeyboardEvent`s on `window` or
+  `PointerEvent`s on the canvas (touch: swipe ≥24px = step; tap adjacent
+  square = step; both handled in `setupTouch`).
+
+## Scoring
+
+`floorScore(moves, seconds)` in src/score.js — starts at 1000, gently
+penalises moves and time, floors at 150, rounds to 10s. Total accumulates
+across a run (reset when starting from the title). Deliberately never shows
+players their move count or time; keep it that way — it's meant to be light.
 
 ## Deployment
 

@@ -13,12 +13,19 @@ A [Sketchplanations](https://sketchplanations.com) experiment.
 |-----|--------|
 | Arrow keys / WASD | Move |
 | R | Restart floor |
+| Q | Quit to title |
 | M | Sound on/off |
 | Esc | Pause menu |
 | Enter | Confirm / next floor |
 
+On a phone or tablet: **swipe** on the board to step in that direction, or
+**tap a square next to your character**. Footer buttons cover restart,
+sound and the pause menu.
+
 Everything moves on a grid, one step at a time. There is no clock and no
 way to die — if you get stuck, press **R** and try a different idea.
+Each floor cleared adds to your score; quicker, tidier solves score a
+little higher (the exact recipe is the tower's secret).
 
 ### The pieces you'll meet
 
