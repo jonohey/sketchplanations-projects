@@ -154,12 +154,15 @@ export class Renderer {
     const ctx = this.ctx;
     ctx.strokeStyle = INK;
     ctx.lineWidth = 2;
-    // Steps ascending from left to right
+    // Horizontal layers stacked into a staircase rising left to right:
+    // the bottom slab spans the tile; each layer above starts further right.
     const steps = 4;
-    const w = (TILE - 16) / steps;
+    const layerH = 10;
+    const inset = (TILE - 16) / steps;
     for (let i = 0; i < steps; i++) {
-      const h = 9 + i * 10;
-      ctx.strokeRect(px + 8 + i * w, py + TILE - 9 - h, w, h);
+      const x = px + 8 + i * inset;
+      const y = py + TILE - 9 - (i + 1) * layerH;
+      ctx.strokeRect(x, y, px + TILE - 8 - x, layerH);
     }
     // Small arrow pointing up the staircase
     ctx.beginPath();
