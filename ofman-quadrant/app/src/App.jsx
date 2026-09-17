@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 // ---------------------------------------------------------------------------
-// Content: the eleven questions, grouped by quadrant.
-//
-// The first question in each quadrant asks for a short label (a word or
-// phrase) — that's what ends up printed inside the diagram box. The
-// follow-up questions dig deeper and feed the personalised summary.
+// Content: one question per quadrant (core quality, pitfall, challenge,
+// allergy), each replaying the answer it builds on, plus one deeper
+// question at the end asking for a real moment that brought the core
+// quality to life. That moment feeds the personalised summary.
 // ---------------------------------------------------------------------------
+
+const QUADRANT_ORDER = ['core', 'pitfall', 'challenge', 'allergy']
 
 const QUADRANTS = {
   core: {
@@ -43,87 +44,50 @@ const QUADRANTS = {
   },
 }
 
+// The running example shown building up across the intro slides, and used
+// as the preview diagram's placeholder values.
+const PREVIEW_VALUES = { core: 'decisive', pitfall: 'pushy', challenge: 'considerate', allergy: 'passive' }
+
 const QUESTIONS = [
-  // Core Quality (3)
   {
     quadrant: 'core',
     isLabel: true,
-    prompt: 'If you had to name this quality in a word or short phrase, what would you call it?',
-    helper: 'Don’t overthink it — the first word that comes to mind is usually right.',
+    prompt: 'What’s a strength that comes naturally to you?',
+    helper: 'Just a word or short phrase — the first thing that comes to mind is usually right.',
     placeholder: 'e.g. organised, warm, decisive, curious…',
+    replay: [],
   },
-  {
-    quadrant: 'core',
-    isLabel: false,
-    prompt: 'What do you take for granted in yourself — the thing you just assume everyone can do, but not everyone can?',
-    helper: 'This is often so natural to you that you’ve never really named it before.',
-    placeholder: 'I’ve always just been able to…',
-  },
-  {
-    quadrant: 'core',
-    isLabel: false,
-    prompt: 'Think of a specific moment you were fully in your element. What were you doing, and what quality made it work?',
-    helper: 'A real moment, not a hypothetical one, makes this easier to answer.',
-    placeholder: 'There was this one time when…',
-  },
-  // Pitfall (3)
   {
     quadrant: 'pitfall',
     isLabel: true,
-    prompt: 'In a word or short phrase, what does this quality turn into when you take it too far?',
-    helper: 'Your pitfall is your core quality overdone — a strength that tips into a weakness.',
+    prompt: 'What does that turn into when you take it too far?',
+    helper: 'Your pitfall — the same strength, overdone, especially under pressure.',
     placeholder: 'e.g. rigid, pushy, invisible, scattered…',
+    replay: [0],
   },
-  {
-    quadrant: 'pitfall',
-    isLabel: false,
-    prompt: 'What kind of feedback do you hear more than once — the corrective kind that stings a little because it’s not entirely wrong?',
-    helper: 'Think about the pattern behind it, not just one bad day.',
-    placeholder: 'People have told me before that I…',
-  },
-  {
-    quadrant: 'pitfall',
-    isLabel: false,
-    prompt: 'What are you inclined to justify or defend in yourself, even when you can see it’s landing badly?',
-    helper: 'This is the moment your strength stops helping and starts working against you.',
-    placeholder: 'I know I do this, but I tell myself…',
-  },
-  // Challenge (3)
   {
     quadrant: 'challenge',
     isLabel: true,
-    prompt: 'In a word or short phrase, what’s the quality you’d like to develop more of?',
-    helper: 'This is the positive opposite of your pitfall — not its polar extreme, its balance.',
+    prompt: 'What’s the positive opposite — the balance you could grow toward?',
+    helper: 'Not a different person to become, just a muscle you haven’t used as much.',
     placeholder: 'e.g. flexibility, patience, self-promotion…',
+    replay: [1],
   },
-  {
-    quadrant: 'challenge',
-    isLabel: false,
-    prompt: 'What do you admire in other people — something you wish came a little more naturally to you?',
-    helper: 'It’s fine if this feels slightly uncomfortable or effortful to imagine doing yourself.',
-    placeholder: 'I really admire people who can…',
-  },
-  {
-    quadrant: 'challenge',
-    isLabel: false,
-    prompt: 'What do the people close to you sometimes wish you’d do more of?',
-    helper: 'A partner, friend, or colleague’s gentle nudge often points straight at this.',
-    placeholder: 'They’ve said things like…',
-  },
-  // Allergy (2)
   {
     quadrant: 'allergy',
     isLabel: true,
-    prompt: 'In a word or short phrase, what does that challenge look like when someone else takes it too far?',
-    helper: 'Your allergy is your challenge, overdone in someone else — and it often ends up looking like the very opposite of your core quality.',
+    prompt: 'And when someone else overdoes that, what does it look like?',
+    helper: 'Tellingly, it often ends up close to the opposite of your core quality.',
     placeholder: 'e.g. chaos, passivity, arrogance…',
+    replay: [2, 0],
   },
   {
-    quadrant: 'allergy',
+    quadrant: 'core',
     isLabel: false,
-    prompt: 'What behaviour in other people genuinely gets under your skin — more than it probably should?',
-    helper: 'The stronger the reaction, the more it usually has to teach you.',
-    placeholder: 'I find it really hard to be around people who…',
+    prompt: 'Think of a real moment when this quality really worked for you. What happened?',
+    helper: 'A specific memory — not a hypothetical one — makes your summary feel like you.',
+    placeholder: 'There was this one time when…',
+    replay: [0],
   },
 ]
 
@@ -177,7 +141,13 @@ function computeBox(text, { fontSize = 16, minWidth = 168, maxTextWidth = 230, p
   return { lines, width, height, fontSize, lineHeight, padX, padY }
 }
 
-function OfmanDiagram({ svgRef, values }) {
+// `reveal` (array of quadrant keys) controls which boxes/arrows are visible —
+// used by the intro's growing preview. Omit it (as the results screen does)
+// to always show the full diagram.
+function OfmanDiagram({ svgRef, values, reveal }) {
+  const revealSet = new Set(reveal || QUADRANT_ORDER)
+  const isVisible = (key) => revealSet.has(key)
+
   const boxOpts = { fontSize: 16, lineHeight: 22 }
   const core = useMemo(() => computeBox(values.core, boxOpts), [values.core])
   const pitfall = useMemo(() => computeBox(values.pitfall, boxOpts), [values.pitfall])
@@ -206,6 +176,7 @@ function OfmanDiagram({ svgRef, values }) {
   const height = rowY[1] + rowHeight[1] + margin + 12
 
   const center = (box) => ({ cx: box.x + box.w / 2, cy: box.y + box.h / 2 })
+  const fade = (visible) => ({ opacity: visible ? 1 : 0, transition: 'opacity 0.6s ease' })
 
   const palette = {
     core: '#4f46e5',
@@ -217,7 +188,7 @@ function OfmanDiagram({ svgRef, values }) {
   function renderBox(key, title) {
     const box = boxes[key]
     return (
-      <g key={key}>
+      <g key={key} style={fade(isVisible(key))}>
         <text
           x={box.x + box.w / 2}
           y={box.y - 10}
@@ -292,68 +263,78 @@ function OfmanDiagram({ svgRef, values }) {
       </defs>
 
       {/* diagonal complement line */}
-      <line
-        x1={boxes.core.x + boxes.core.w}
-        y1={boxes.core.y + boxes.core.h}
-        x2={boxes.challenge.x}
-        y2={boxes.challenge.y}
-        stroke="#94a3b8"
-        strokeWidth="1.5"
-        strokeDasharray="5 5"
-      />
-      {edgeLabel(
-        (boxes.core.x + boxes.core.w + boxes.challenge.x) / 2,
-        (boxes.core.y + boxes.core.h + boxes.challenge.y) / 2,
-        'complements'
-      )}
+      <g style={fade(isVisible('core') && isVisible('challenge'))}>
+        <line
+          x1={boxes.core.x + boxes.core.w}
+          y1={boxes.core.y + boxes.core.h}
+          x2={boxes.challenge.x}
+          y2={boxes.challenge.y}
+          stroke="#94a3b8"
+          strokeWidth="1.5"
+          strokeDasharray="5 5"
+        />
+        {edgeLabel(
+          (boxes.core.x + boxes.core.w + boxes.challenge.x) / 2,
+          (boxes.core.y + boxes.core.h + boxes.challenge.y) / 2,
+          'complements'
+        )}
+      </g>
 
       {/* core -> pitfall */}
-      <line
-        x1={boxes.core.x + boxes.core.w + arrowGap}
-        y1={center(boxes.core).cy}
-        x2={boxes.pitfall.x - arrowGap}
-        y2={center(boxes.pitfall).cy}
-        stroke="#64748b"
-        strokeWidth="2"
-        markerEnd="url(#arrowhead)"
-      />
-      {edgeLabel(center(boxes.core).cx + colWidth[0] / 2 + gapH / 2, center(boxes.core).cy - 14, 'too much of a good thing')}
+      <g style={fade(isVisible('core') && isVisible('pitfall'))}>
+        <line
+          x1={boxes.core.x + boxes.core.w + arrowGap}
+          y1={center(boxes.core).cy}
+          x2={boxes.pitfall.x - arrowGap}
+          y2={center(boxes.pitfall).cy}
+          stroke="#64748b"
+          strokeWidth="2"
+          markerEnd="url(#arrowhead)"
+        />
+        {edgeLabel(center(boxes.core).cx + colWidth[0] / 2 + gapH / 2, center(boxes.core).cy - 14, 'too much of a good thing')}
+      </g>
 
       {/* pitfall -> challenge */}
-      <line
-        x1={center(boxes.pitfall).cx}
-        y1={boxes.pitfall.y + boxes.pitfall.h + arrowGap}
-        x2={center(boxes.challenge).cx}
-        y2={boxes.challenge.y - arrowGap}
-        stroke="#64748b"
-        strokeWidth="2"
-        markerEnd="url(#arrowhead)"
-      />
-      {edgeLabel(center(boxes.pitfall).cx + 62, (boxes.pitfall.y + boxes.pitfall.h + boxes.challenge.y) / 2, 'positive opposite')}
+      <g style={fade(isVisible('pitfall') && isVisible('challenge'))}>
+        <line
+          x1={center(boxes.pitfall).cx}
+          y1={boxes.pitfall.y + boxes.pitfall.h + arrowGap}
+          x2={center(boxes.challenge).cx}
+          y2={boxes.challenge.y - arrowGap}
+          stroke="#64748b"
+          strokeWidth="2"
+          markerEnd="url(#arrowhead)"
+        />
+        {edgeLabel(center(boxes.pitfall).cx + 62, (boxes.pitfall.y + boxes.pitfall.h + boxes.challenge.y) / 2, 'positive opposite')}
+      </g>
 
       {/* challenge -> allergy */}
-      <line
-        x1={boxes.challenge.x - arrowGap}
-        y1={center(boxes.challenge).cy}
-        x2={boxes.allergy.x + boxes.allergy.w + arrowGap}
-        y2={center(boxes.allergy).cy}
-        stroke="#64748b"
-        strokeWidth="2"
-        markerEnd="url(#arrowhead)"
-      />
-      {edgeLabel(center(boxes.allergy).cx + colWidth[0] / 2 + gapH / 2, center(boxes.allergy).cy + 20, 'too much of a good thing')}
+      <g style={fade(isVisible('challenge') && isVisible('allergy'))}>
+        <line
+          x1={boxes.challenge.x - arrowGap}
+          y1={center(boxes.challenge).cy}
+          x2={boxes.allergy.x + boxes.allergy.w + arrowGap}
+          y2={center(boxes.allergy).cy}
+          stroke="#64748b"
+          strokeWidth="2"
+          markerEnd="url(#arrowhead)"
+        />
+        {edgeLabel(center(boxes.allergy).cx + colWidth[0] / 2 + gapH / 2, center(boxes.allergy).cy + 20, 'too much of a good thing')}
+      </g>
 
       {/* allergy -> core */}
-      <line
-        x1={center(boxes.allergy).cx}
-        y1={boxes.allergy.y - arrowGap}
-        x2={center(boxes.core).cx}
-        y2={boxes.core.y + boxes.core.h + arrowGap}
-        stroke="#64748b"
-        strokeWidth="2"
-        markerEnd="url(#arrowhead)"
-      />
-      {edgeLabel(center(boxes.core).cx - 62, (boxes.allergy.y + boxes.core.y + boxes.core.h) / 2, 'positive opposite')}
+      <g style={fade(isVisible('allergy') && isVisible('core'))}>
+        <line
+          x1={center(boxes.allergy).cx}
+          y1={boxes.allergy.y - arrowGap}
+          x2={center(boxes.core).cx}
+          y2={boxes.core.y + boxes.core.h + arrowGap}
+          stroke="#64748b"
+          strokeWidth="2"
+          markerEnd="url(#arrowhead)"
+        />
+        {edgeLabel(center(boxes.core).cx - 62, (boxes.allergy.y + boxes.core.y + boxes.core.h) / 2, 'positive opposite')}
+      </g>
 
       {renderBox('core', 'Core Quality')}
       {renderBox('pitfall', 'Pitfall')}
@@ -377,34 +358,31 @@ function quote(text) {
   return t ? `“${t}”` : ''
 }
 
+function wrap(text) {
+  const t = (text || '').trim()
+  return t ? `“${t}”` : '“this quality”'
+}
+
 function buildSummary(answers) {
-  const [coreLabel, coreTaken, coreMoment] = answers.slice(0, 3)
-  const [pitfallLabel, pitfallFeedback, pitfallJustify] = answers.slice(3, 6)
-  const [challengeLabel, challengeAdmire, challengeWish] = answers.slice(6, 9)
-  const [allergyLabel, allergyIrritation] = answers.slice(9, 11)
+  const [coreLabel, pitfallLabel, challengeLabel, allergyLabel, coreMoment] = answers
 
   const paragraphs = []
 
   paragraphs.push(
-    `Your core quality centres on ${wrap(coreLabel)}. Asked what you take for granted in yourself, you said: ${quote(coreTaken)}. And a moment that captured it well: ${quote(coreMoment)}. That’s the strength doing its quiet work in the background. But every strength has a shadow side — when ${lower(coreLabel)} gets pushed too far under pressure, it tips into ${wrap(pitfallLabel)}. You already know the pattern: ${quote(pitfallFeedback)} is the kind of feedback that keeps surfacing, and in the moment you tend to tell yourself, ${quote(pitfallJustify)}`
+    `Your core quality centres on ${wrap(coreLabel)}. A moment that captures it well: ${quote(coreMoment)}. That’s the strength doing its quiet work — until it’s pushed too far. Under pressure, ${lower(coreLabel)} can tip into ${wrap(pitfallLabel)}, the pitfall side of the same trait.`
   )
 
   paragraphs.push(
-    `The way back into balance isn’t to abandon ${lower(coreLabel)} — it’s to grow ${wrap(challengeLabel)} alongside it. This challenge matters because it’s the positive opposite of ${lower(pitfallLabel)}: not a different person to become, just a muscle you haven’t used as much. It’s no accident that you admire people who can ${quote(challengeAdmire)}, or that the people close to you have hinted, ${quote(challengeWish)} That’s ${lower(challengeLabel)} pointing straight at you.`
+    `The way back into balance isn’t to abandon ${lower(coreLabel)} — it’s to grow ${wrap(challengeLabel)} alongside it. This challenge is the positive opposite of ${lower(pitfallLabel)}: not a different person to become, just a muscle you haven’t used as much.`
   )
 
   paragraphs.push(
-    `It’s also worth noticing what happens when someone overdoes ${lower(challengeLabel)}: it reads to you as ${wrap(allergyLabel)} — and, tellingly, that usually sits close to the opposite of ${wrap(coreLabel)} itself. By your own account, what gets under your skin is people who ${quote(allergyIrritation)} That reaction isn’t random — an allergy is usually a strength you haven’t grown into yet, seen at its worst in someone else. The very thing that irritates you may be showing you the edge of your own growth.`
+    `It’s also worth noticing what happens when someone overdoes ${lower(challengeLabel)}: it reads to you as ${wrap(allergyLabel)} — and, tellingly, that usually sits close to the opposite of ${wrap(coreLabel)} itself. That reaction isn’t random — an allergy is usually a strength you haven’t grown into yet, seen at its worst in someone else. The very thing that irritates you may be showing you the edge of your own growth.`
   )
 
   const steps = buildNextSteps({ coreLabel, pitfallLabel, challengeLabel, allergyLabel })
 
   return { paragraphs, steps }
-}
-
-function wrap(text) {
-  const t = (text || '').trim()
-  return t ? `“${t}”` : '“this quality”'
 }
 
 function buildNextSteps({ coreLabel, pitfallLabel, challengeLabel, allergyLabel }) {
@@ -416,7 +394,7 @@ function buildNextSteps({ coreLabel, pitfallLabel, challengeLabel, allergyLabel 
 }
 
 // ---------------------------------------------------------------------------
-// Screens
+// Shared bits
 // ---------------------------------------------------------------------------
 
 function ProgressBar({ current, total }) {
@@ -446,35 +424,67 @@ function ProgressBar({ current, total }) {
   )
 }
 
+function ReplayChip({ quadrantKey, value }) {
+  const meta = QUADRANTS[quadrantKey]
+  if (!value) return null
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 pl-2 pr-3 py-1 text-sm">
+      <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} aria-hidden="true" />
+      <span className="text-slate-500 dark:text-slate-400">{meta.title}:</span>
+      <span className="font-medium text-slate-700 dark:text-slate-200">“{value}”</span>
+    </span>
+  )
+}
+
+function FooterCredit({ className = '' }) {
+  return (
+    <p className={`text-xs text-slate-400 dark:text-slate-600 ${className}`}>
+      Built by Jono Hey for{' '}
+      <a
+        href="https://sketchplanations.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:no-underline"
+      >
+        Sketchplanations
+      </a>
+    </p>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Screens
+// ---------------------------------------------------------------------------
+
 const INTRO_SLIDES = [
   {
     kind: 'hook',
     title: 'Every strength has a shadow side',
-    body: 'Psychologist Daniel Ofman noticed that when you push a strength too far — especially under pressure — it turns into a weakness. His Core Quadrant maps that pattern in four parts.',
+    body: 'Psychologist Daniel Ofman noticed that when you push a strength too far — especially under pressure — it turns into a weakness. We’ll walk you through completing your Ofman quadrant, then dive into one of your core strengths in a bit more depth.',
   },
   {
     kind: 'quadrant',
     quadrant: 'core',
     title: 'Your core quality',
-    body: 'A strength that comes from who you are — so natural you barely notice it. Being decisive, for example.',
+    body: 'A strength that comes from who you are — so natural you barely notice it.',
   },
   {
     kind: 'quadrant',
     quadrant: 'pitfall',
     title: 'Pushed too far, it’s your pitfall',
-    body: 'Overdo a strength, especially under stress, and it tips into a weakness. Decisive can turn into pushy.',
+    body: 'Overdo a strength, especially under stress, and it tips into a weakness.',
   },
   {
     kind: 'quadrant',
     quadrant: 'challenge',
     title: 'Your challenge is the balance',
-    body: 'The positive opposite of the pitfall — not a different person, just a muscle to build. Pushy’s opposite is considerate.',
+    body: 'The positive opposite of the pitfall — not a different person, just a muscle to build.',
   },
   {
     kind: 'quadrant',
     quadrant: 'allergy',
     title: 'And what irritates you? Often your allergy',
-    body: 'When someone overdoes your challenge, it can really grate on you — and, tellingly, it often looks like the opposite of your core quality. Too much consideration can look like passivity, the flip side of decisive.',
+    body: 'When someone overdoes your challenge, it can really grate on you — and, tellingly, it often looks like the opposite of your core quality.',
     closing: true,
   },
 ]
@@ -498,9 +508,10 @@ function Dots({ count, current }) {
   )
 }
 
-function IntroScreen({ slideIndex, onNext, onPrev, onStart }) {
+function IntroScreen({ slideIndex, onNext, onPrev, onStart, onSkip }) {
   const slide = INTRO_SLIDES[slideIndex]
   const meta = slide.quadrant ? QUADRANTS[slide.quadrant] : null
+  const reveal = QUADRANT_ORDER.slice(0, slideIndex)
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -514,49 +525,57 @@ function IntroScreen({ slideIndex, onNext, onPrev, onStart }) {
   }, [slide, onNext, onStart])
 
   return (
-    <div className="min-h-screen flex flex-col px-5 py-8 sm:px-8 sm:py-12">
-      <div className="w-full max-w-xl mx-auto flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-10">
+    <div className="h-dvh flex flex-col overflow-hidden px-5 sm:px-8">
+      <div className="w-full max-w-xl mx-auto flex-1 flex flex-col min-h-0">
+        <div className="shrink-0 flex items-center justify-between pt-6 pb-2">
           <Dots count={INTRO_SLIDES.length} current={slideIndex} />
-          <span className="text-sm text-slate-400 dark:text-slate-500">
-            {slideIndex + 1} / {INTRO_SLIDES.length}
-          </span>
+          <button
+            onClick={onSkip}
+            className="text-sm text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition"
+          >
+            Skip intro
+          </button>
         </div>
 
-        <div key={slideIndex} className="animate-question-in flex-1 flex flex-col justify-center">
-          {meta ? (
-            <div className="flex items-center gap-2 mb-3">
-              <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} aria-hidden="true" />
-              <span className={`text-sm font-semibold uppercase tracking-wide ${meta.accent}`}>
-                {meta.title}
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3">
-              A short self-reflection tool
-            </p>
-          )}
-
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 leading-snug">
-            {slide.title}
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">{slide.body}</p>
-
-          {slide.closing && (
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-5 mt-8">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 font-medium">
-                Takes about 5 minutes
+        <div className="flex-1 overflow-y-auto min-h-0 py-4">
+          <div key={slideIndex} className="animate-question-in">
+            {meta ? (
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} aria-hidden="true" />
+                <span className={`text-sm font-semibold uppercase tracking-wide ${meta.accent}`}>
+                  {meta.title}
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-3">
+                A short self-reflection tool
               </p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                You’ll answer 11 short questions, one at a time — you can always go back to change
-                one. At the end you’ll get a diagram and a summary you can copy or save, so don’t
-                worry about losing your answers along the way.
+            )}
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 leading-snug">
+              {slide.title}
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">{slide.body}</p>
+
+            {slideIndex === 0 && (
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-4">Takes about 3 minutes.</p>
+            )}
+
+            {slide.closing && (
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-6">
+                You’ll be able to copy or save everything at the end.
               </p>
+            )}
+          </div>
+
+          {slideIndex > 0 && (
+            <div className="mt-8 max-w-sm mx-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/40 p-4">
+              <OfmanDiagram values={PREVIEW_VALUES} reveal={reveal} />
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-3 mt-8">
+        <div className="shrink-0 flex items-center gap-3 py-4">
           {slideIndex > 0 && (
             <button
               onClick={onPrev}
@@ -572,12 +591,14 @@ function IntroScreen({ slideIndex, onNext, onPrev, onStart }) {
             {slide.closing ? 'Start the assessment' : 'Next'}
           </button>
         </div>
+
+        <FooterCredit className="shrink-0 text-center pb-4" />
       </div>
     </div>
   )
 }
 
-function QuestionScreen({ index, total, question, value, onChange, onNext, onPrev }) {
+function QuestionScreen({ index, total, question, value, answers, onChange, onNext, onPrev }) {
   const meta = QUADRANTS[question.quadrant]
   const trimmed = value.trim()
   const isEmpty = trimmed.length === 0
@@ -603,55 +624,67 @@ function QuestionScreen({ index, total, question, value, onChange, onNext, onPre
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-5 py-8 sm:px-8 sm:py-12">
-      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
-        <ProgressBar current={index + 1} total={total} />
+    <div className="h-dvh flex flex-col overflow-hidden px-5 sm:px-8">
+      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col min-h-0">
+        <div className="shrink-0 pt-6 pb-2">
+          <ProgressBar current={index + 1} total={total} />
+        </div>
 
-        <div key={index} className="animate-question-in mt-8 flex-1 flex flex-col">
-          <div className="flex items-center gap-2 mb-3">
-            <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} aria-hidden="true" />
-            <span className={`text-sm font-semibold uppercase tracking-wide ${meta.accent}`}>
-              {meta.title}
-            </span>
-          </div>
+        <div className="flex-1 overflow-y-auto min-h-0 py-4">
+          <div key={index} className="animate-question-in">
+            <div className="flex items-center gap-2 mb-3">
+              <span className={`inline-block h-2.5 w-2.5 rounded-full ${meta.dot}`} aria-hidden="true" />
+              <span className={`text-sm font-semibold uppercase tracking-wide ${meta.accent}`}>
+                {meta.title}
+              </span>
+            </div>
 
-          <label htmlFor={fieldId} className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-3">
-            {question.prompt}
-          </label>
-          <p className="text-slate-500 dark:text-slate-400 mb-6">{question.helper}</p>
+            {question.replay.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {question.replay.map((i) => (
+                  <ReplayChip key={i} quadrantKey={QUESTIONS[i].quadrant} value={answers[i]} />
+                ))}
+              </div>
+            )}
 
-          {question.isLabel ? (
-            <input
-              id={fieldId}
-              ref={fieldRef}
-              type="text"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={question.placeholder}
-              className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xl p-4 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            />
-          ) : (
-            <>
-              <textarea
+            <label htmlFor={fieldId} className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-3 block">
+              {question.prompt}
+            </label>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">{question.helper}</p>
+
+            {question.isLabel ? (
+              <input
                 id={fieldId}
                 ref={fieldRef}
+                type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={question.placeholder}
-                rows={5}
-                className="w-full flex-1 min-h-[120px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-lg p-4 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                aria-describedby={`${fieldId}-hint`}
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xl p-4 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
-              <div id={`${fieldId}-hint`} className="min-h-[1.5rem] mt-2 text-sm text-amber-600 dark:text-amber-400" aria-live="polite">
-                {isShort ? 'Tell us a bit more if you can — a full thought helps your summary later.' : ''}
-              </div>
-            </>
-          )}
+            ) : (
+              <>
+                <textarea
+                  id={fieldId}
+                  ref={fieldRef}
+                  value={value}
+                  onChange={(e) => onChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={question.placeholder}
+                  rows={5}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-lg p-4 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-200 dark:focus:ring-indigo-900 focus:border-indigo-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  aria-describedby={`${fieldId}-hint`}
+                />
+                <div id={`${fieldId}-hint`} className="min-h-[1.5rem] mt-2 text-sm text-amber-600 dark:text-amber-400" aria-live="polite">
+                  {isShort ? 'Tell us a bit more if you can — a full thought helps your summary later.' : ''}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-6">
+        <div className="shrink-0 flex items-center gap-3 py-4">
           <button
             onClick={onPrev}
             className="inline-flex items-center justify-center rounded-xl px-6 py-3.5 text-base font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition focus:outline-none focus:ring-4 focus:ring-slate-200 dark:focus:ring-slate-700"
@@ -678,9 +711,9 @@ function ResultsScreen({ answers, onRestart, onEdit }) {
 
   const values = {
     core: answers[0],
-    pitfall: answers[3],
-    challenge: answers[6],
-    allergy: answers[9],
+    pitfall: answers[1],
+    challenge: answers[2],
+    allergy: answers[3],
   }
 
   const { paragraphs, steps } = useMemo(() => buildSummary(answers), [answers])
@@ -823,6 +856,8 @@ function ResultsScreen({ answers, onRestart, onEdit }) {
           </a>
           .
         </p>
+
+        <FooterCredit className="mt-6" />
       </div>
     </div>
   )
@@ -916,6 +951,7 @@ export default function App() {
         onNext={handleIntroNext}
         onPrev={handleIntroPrev}
         onStart={handleStart}
+        onSkip={handleStart}
       />
     )
   }
@@ -930,6 +966,7 @@ export default function App() {
       total={QUESTIONS.length}
       question={QUESTIONS[step]}
       value={answers[step]}
+      answers={answers}
       onChange={handleChange}
       onNext={handleNext}
       onPrev={handlePrev}
