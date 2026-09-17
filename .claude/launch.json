@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8321", "--directory", "echo-tower"],
       "port": 8321
+    },
+    {
+      "name": "ofman-quadrant",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "ofman-quadrant/app", "--", "--port", "8322", "--strictPort"],
+      "port": 8322
     }
   ]
 }
