@@ -40,33 +40,33 @@ a {
 
 header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px 24px;
-  margin-bottom: 40px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  margin-bottom: 48px;
 }
 
-.logo {
+.logo-link {
   display: inline-flex;
-  align-items: baseline;
-  gap: 12px;
-  text-decoration: none;
-  color: var(--ink);
 }
 
 .logo-mark {
-  height: 34px;
+  height: 26px;
   width: auto;
   display: block;
 }
 
-.logo-tag {
-  font-size: 0.95rem;
-  color: var(--ink-soft);
+.page-title {
+  margin: 6px 0 2px;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 3.2rem;
+  line-height: 1;
 }
 
 .byline {
+  margin: 0;
   font-size: 0.95rem;
   color: var(--ink-soft);
 }
