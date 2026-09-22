@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "landing-page",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8323"],
+      "port": 8323
+    },
+    {
       "name": "echo-tower",
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8321", "--directory", "echo-tower"],
