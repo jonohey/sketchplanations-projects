@@ -69,6 +69,13 @@ Design tip: check the printed solution *length and shape*; if the solver
 solves your "hard" level by holding one direction, add walls or move pieces.
 Replay a custom sequence with `node tools/check-levels.js 7 right,up,up`.
 
+Paper-first option: `design/echo-tower-level-notebook.pdf` is a printable,
+grayscale, A4 notebook with one annotated page per current floor (grid +
+notes lines) plus blank grid templates for sketching new rooms by hand.
+Regenerate it after editing `LEVELS` — see the docstring in
+`design/make_notebook.py` for the one-time venv setup. Transcribe a hand-
+drawn room back into `src/levels.js` using the map legend above.
+
 ### A new mechanic (terrain or entity)
 1. Add the map character + cell/entity in `parseLevel()` (logic.js).
 2. Implement its rules in `step()` / `tryMovePlayer()` / `tryMoveStatue()`.
