@@ -41,6 +41,28 @@ const ICONS = {
       <path d="M70 104v10M170 104v10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
     </svg>`,
 
+  // Word Hunt — a grid of letter tiles with a word traced across them.
+  letters: `
+    <svg viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="currentColor" stroke-width="3">
+        <rect x="66" y="18" width="34" height="34" rx="7"/>
+        <rect x="103" y="18" width="34" height="34" rx="7"/>
+        <rect x="140" y="18" width="34" height="34" rx="7"/>
+        <rect x="66" y="63" width="34" height="34" rx="7"/>
+        <rect x="103" y="63" width="34" height="34" rx="7"/>
+        <rect x="140" y="63" width="34" height="34" rx="7"/>
+        <rect x="66" y="108" width="34" height="34" rx="7"/>
+        <rect x="103" y="108" width="34" height="34" rx="7"/>
+        <rect x="140" y="108" width="34" height="34" rx="7"/>
+      </g>
+      <g fill="currentColor" font-family="Kalam, sans-serif" font-weight="700" font-size="22" text-anchor="middle">
+        <text x="83" y="43">W</text><text x="120" y="43">O</text><text x="157" y="43">S</text>
+        <text x="83" y="88">E</text><text x="120" y="88">R</text><text x="157" y="88">D</text>
+        <text x="83" y="133">T</text><text x="120" y="133">A</text><text x="157" y="133">H</text>
+      </g>
+      <path d="M83 35L120 35L120 80L157 80" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+    </svg>`,
+
   // Default fallback for any project that doesn't specify its own icon.
   spark: `
     <svg viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">

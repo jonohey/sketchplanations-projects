@@ -1,0 +1,11 @@
+{
+  "name": "word-hunt",
+  "version": "0.1.0",
+  "description": "Trace words across a fresh toss of letter dice. A Sketchplanations experiment.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.js'",
+    "build-words": "node tools/build-words.mjs"
+  }
+}

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Word Hunt</title>
+  <meta name="description" content="Trace words across a fresh toss of letter dice. A Sketchplanations experiment." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='8' y='8' width='84' height='84' rx='18' fill='%23fff6e6' stroke='%232e2b27' stroke-width='8'/><text x='50' y='70' font-size='56' font-family='sans-serif' font-weight='700' text-anchor='middle' fill='%232e2b27'>W</text></svg>" />
+  <link rel="preload" href="words/words.txt" as="fetch" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="top">
+      <a class="home" href="../" aria-label="All Sketchplanations projects">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </a>
+      <h1>Word Hunt</h1>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-help" aria-haspopup="dialog" aria-label="How to play">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" /><path d="M9.3 9.4a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2 1-1.2 1.8v.6" /><circle class="dot" cx="12" cy="17.3" r="0.6" /></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-settings" aria-haspopup="dialog" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10" /><circle cx="16" cy="7" r="2.2" /><circle cx="8" cy="17" r="2.2" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <form class="controls" id="controls" aria-label="Game options">
+      <fieldset class="seg">
+        <legend>Grid</legend>
+        <div class="seg-options">
+          <label><input type="radio" name="size" value="3" aria-label="3 by 3 grid" /><span>3<span aria-hidden="true">×</span><span class="sr-only"> by </span>3</span></label>
+          <label><input type="radio" name="size" value="4" aria-label="4 by 4 grid" /><span>4<span aria-hidden="true">×</span><span class="sr-only"> by </span>4</span></label>
+          <label><input type="radio" name="size" value="5" aria-label="5 by 5 grid" /><span>5<span aria-hidden="true">×</span><span class="sr-only"> by </span>5</span></label>
+          <label><input type="radio" name="size" value="6" aria-label="6 by 6 grid" /><span>6<span aria-hidden="true">×</span><span class="sr-only"> by </span>6</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="seg">
+        <legend>Timer</legend>
+        <div class="seg-options">
+          <label><input type="radio" name="timer" value="0" aria-label="Untimed" /><span>Off</span></label>
+          <label><input type="radio" name="timer" value="1" aria-label="1 minute" /><span>1<span aria-hidden="true">m</span><span class="sr-only"> minute</span></span></label>
+          <label><input type="radio" name="timer" value="2" aria-label="2 minutes" /><span>2<span aria-hidden="true">m</span><span class="sr-only"> minutes</span></span></label>
+          <label><input type="radio" name="timer" value="3" aria-label="3 minutes" /><span>3<span aria-hidden="true">m</span><span class="sr-only"> minutes</span></span></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <main class="play">
+      <div class="status">
+        <p class="current" id="current" aria-hidden="true"></p>
+        <p class="clock" id="clock" hidden><span class="sr-only">Time left </span><span id="clock-text">0:00</span></p>
+      </div>
+
+      <div class="board-area">
+        <div class="board" id="board" role="group" aria-roledescription="letter grid">
+          <svg class="trail" id="trail" aria-hidden="true" focusable="false">
+            <polyline id="trail-line" points="" />
+          </svg>
+        </div>
+      </div>
+
+      <section class="found" id="found" aria-label="Words found">
+        <p class="empty" id="empty">Drag across touching letters to make words.</p>
+        <ul class="chips" id="words" aria-label="Scoring words"></ul>
+        <div class="group" id="extras-group" hidden>
+          <h2 class="group-label">No points <span class="hint">(names &amp; slang)</span></h2>
+          <ul class="chips extras" id="extras"></ul>
+        </div>
+        <div class="group" id="missed-group" hidden>
+          <h2 class="group-label" id="missed-label">Missed</h2>
+          <ul class="chips missed" id="missed"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bar">
+      <p class="tally" id="tally">
+        <span class="score"><strong id="score">0</strong> <span id="score-unit">points</span></span>
+        <span class="count" id="count">0 words</span>
+      </p>
+      <button type="button" class="btn" id="btn-reveal" hidden>Reveal</button>
+      <button type="button" class="btn primary" id="btn-reroll">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" /><circle class="dot" cx="8.5" cy="8.5" r="1.3" /><circle class="dot" cx="15.5" cy="15.5" r="1.3" /><circle class="dot" cx="12" cy="12" r="1.3" /></svg>
+        Reroll
+      </button>
+    </footer>
+
+    <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <dialog id="help" aria-labelledby="help-title">
+    <form method="dialog" class="dialog-close"><button class="icon-btn" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button></form>
+    <h2 id="help-title">How to play</h2>
+    <ul class="rules">
+      <li><strong>Drag</strong> across touching letters to spell a word &mdash; up, down, sideways or diagonally. Let go to play it.</li>
+      <li>Each letter tile can be used <strong>once</strong> per word, and you can't skip over tiles.</li>
+      <li>Words need <strong>3 or more letters</strong>. <strong>Qu</strong> sits on one tile and counts as two letters.</li>
+      <li>Slide back over the last letter to undo it.</li>
+      <li>Names and slang are kept <span class="extra-sample">in blue</span> but don't score.</li>
+    </ul>
+    <h3>Scoring</h3>
+    <table class="scoring">
+      <caption class="sr-only">Points by word length</caption>
+      <thead><tr><th scope="col">Letters</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th><th scope="col">6</th><th scope="col">7</th><th scope="col">8+</th></tr></thead>
+      <tbody><tr><th scope="row">Points</th><td>1</td><td>1</td><td>2</td><td>3</td><td>5</td><td>11</td></tr></tbody>
+    </table>
+    <h3>Options</h3>
+    <p>Pick a grid from 3&times;3 to 6&times;6, and play untimed or against a 1, 2 or 3&nbsp;minute timer. <strong>Reroll</strong> tosses a fresh set of letters. The timer pauses while this box is open.</p>
+    <h3>Keyboard</h3>
+    <p>Type a word and press <kbd>Enter</kbd>. Or <kbd>Tab</kbd> to the grid, move with arrow keys, pick letters with <kbd>Space</kbd> and press it again on the last letter to play. <kbd>Backspace</kbd> undoes a letter, <kbd>Esc</kbd> clears.</p>
+    <p class="credit">Words from the public-domain ENABLE list; names from Webster's Second. A <a href="https://sketchplanations.com">Sketchplanations</a> experiment.</p>
+  </dialog>
+
+  <dialog id="settings" aria-labelledby="settings-title">
+    <form method="dialog" class="dialog-close"><button class="icon-btn" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button></form>
+    <h2 id="settings-title">Settings</h2>
+    <label class="toggle">
+      <input type="checkbox" id="opt-count" />
+      <span>
+        <strong>Word count &amp; reveal</strong>
+        <span class="toggle-desc">Show how many words are hidden in the grid, and a Reveal button that lists the ones you missed.</span>
+      </span>
+    </label>
+  </dialog>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
