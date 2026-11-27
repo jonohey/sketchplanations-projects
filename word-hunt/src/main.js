@@ -43,6 +43,8 @@ const els = {
   help: $("help"),
   settings: $("settings"),
   optCount: $("opt-count"),
+  themes: $("themes"),
+  themeColor: document.querySelector('meta[name="theme-color"]'),
   define: $("define"),
   defineWord: $("define-word"),
   defineBody: $("define-body"),
@@ -53,7 +55,8 @@ const els = {
 // ---------------------------------------------------------------- settings
 
 const STORE_KEY = "word-hunt:settings";
-const settings = { size: 4, timer: 0, showCount: false };
+const THEMES = ["classic", "night", "sea", "forest", "berry", "contrast"];
+const settings = { size: 4, timer: 0, showCount: false, theme: "classic" };
 try {
   Object.assign(settings, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
 } catch {
@@ -61,6 +64,7 @@ try {
 }
 if (!SIZES.includes(settings.size)) settings.size = 4;
 if (![0, 1, 2, 3].includes(settings.timer)) settings.timer = 0;
+if (!THEMES.includes(settings.theme)) settings.theme = "classic";
 
 function saveSettings() {
   try {
@@ -674,7 +678,15 @@ function renderMissed() {
 
 // ------------------------------------------------------------- controls
 
+function applyTheme() {
+  document.documentElement.dataset.theme = settings.theme;
+  // Match the browser toolbar on phones to the page background.
+  const paper = getComputedStyle(document.documentElement).getPropertyValue("--paper").trim();
+  if (paper) els.themeColor.setAttribute("content", paper);
+}
+
 function syncControls() {
+  els.themes.elements.theme.value = settings.theme;
   els.controls.elements.size.value = String(settings.size);
   els.controls.elements.timer.value = String(settings.timer);
   els.optCount.checked = settings.showCount;
@@ -692,6 +704,14 @@ els.controls.addEventListener("submit", (e) => e.preventDefault());
 
 els.reroll.addEventListener("click", () => newGame());
 els.reveal.addEventListener("click", () => endGame("reveal"));
+
+els.themes.addEventListener("change", (e) => {
+  if (e.target.name !== "theme") return;
+  settings.theme = e.target.value;
+  saveSettings();
+  applyTheme();
+});
+els.themes.addEventListener("submit", (e) => e.preventDefault());
 
 els.optCount.addEventListener("change", () => {
   settings.showCount = els.optCount.checked;
@@ -879,6 +899,7 @@ els.found.addEventListener("scroll", () => closeDefinition(), { passive: true })
 
 // ------------------------------------------------------------------ start
 
+applyTheme();
 syncControls();
 newGame();
 loadDictionary();

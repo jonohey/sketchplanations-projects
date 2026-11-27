@@ -1,15 +1,178 @@
-:root {
+/* ---------- colour schemes ----------
+   Every colour comes from these variables. Each scheme sets all of them, and
+   tests/themes.test.js checks the text and edge pairs for WCAG AA contrast.
+   [data-theme] works on any element, so Settings can preview each scheme. */
+
+:root,
+[data-theme="classic"] {
   --paper: #ffffff;
-  --tile: #fff6e6;
   --ink: #2e2b27;
-  --ink-soft: #6f695f;
+  --ink-soft: #6b655b;
   --ink-faint: #b5ada0;
   --line: #e7dfd0;
+  --hover: #fbf3e2;
+  --shadow: #2e2b27;
+  --tile: #fff6e6;
+  --tile-ink: #2e2b27;
+  --tray: #efdcb6;
+  --tray-line: rgb(46 43 39 / 0.22);
   --accent: #f2a93b;
-  --accent-ink: #b86a00;
-  --good: #23885b;
-  --bad: #c8423b;
-  --extra: #2f6fc4;
+  --on-accent: #2e2b27;
+  --accent-ink: #94560a;
+  --trail: #94560a;
+  --good: #1f7a52;
+  --bad: #c0392b;
+  --on-bad: #ffffff;
+  --extra: #2a64b8;
+  --flash-good: #9fdcbc;
+  --flash-bad: #f4b3ae;
+  --flash-dup: #f7d58b;
+  --flash-extra: #b5d0f5;
+  --backdrop: rgb(46 43 39 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="night"] {
+  --paper: #17161c;
+  --ink: #f4efe6;
+  --ink-soft: #b9b2a6;
+  --ink-faint: #6d675e;
+  --line: #3a3742;
+  --hover: #2a2832;
+  --shadow: #000000;
+  --tile: #2b2934;
+  --tile-ink: #fff8ec;
+  --tray: #4a3f5c;
+  --tray-line: rgb(255 255 255 / 0.16);
+  --accent: #ffb648;
+  --on-accent: #17161c;
+  --accent-ink: #ffc46b;
+  --trail: #ffffff;
+  --good: #5fd39a;
+  --bad: #ff8a80;
+  --on-bad: #17161c;
+  --extra: #8ab4ff;
+  --flash-good: #7fdcae;
+  --flash-bad: #ff9d95;
+  --flash-dup: #ffd27a;
+  --flash-extra: #a9c8ff;
+  --backdrop: rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+[data-theme="sea"] {
+  --paper: #f2f8fc;
+  --ink: #0f2a3f;
+  --ink-soft: #44617a;
+  --ink-faint: #9bb3c6;
+  --line: #cfe0ec;
+  --hover: #e1eef7;
+  --shadow: #0f2a3f;
+  --tile: #ffffff;
+  --tile-ink: #0f2a3f;
+  --tray: #8fc1e3;
+  --tray-line: rgb(15 42 63 / 0.25);
+  --accent: #ffcf56;
+  --on-accent: #0f2a3f;
+  --accent-ink: #855600;
+  --trail: #855600;
+  --good: #1d7a4e;
+  --bad: #b8322a;
+  --on-bad: #ffffff;
+  --extra: #1f5fae;
+  --flash-good: #a8e2c4;
+  --flash-bad: #f6b4ae;
+  --flash-dup: #ffe08a;
+  --flash-extra: #bcd6f7;
+  --backdrop: rgb(15 42 63 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="forest"] {
+  --paper: #f4f7ef;
+  --ink: #1e2b1e;
+  --ink-soft: #4d5e4a;
+  --ink-faint: #a3b39d;
+  --line: #d8e2cf;
+  --hover: #e6eedc;
+  --shadow: #1e2b1e;
+  --tile: #fffdf4;
+  --tile-ink: #1e2b1e;
+  --tray: #9dbf8a;
+  --tray-line: rgb(30 43 30 / 0.25);
+  --accent: #f0a35e;
+  --on-accent: #1e2b1e;
+  --accent-ink: #8c4a12;
+  --trail: #8c4a12;
+  --good: #1c6e3f;
+  --bad: #b33a2e;
+  --on-bad: #ffffff;
+  --extra: #2a5ea8;
+  --flash-good: #a9dcb8;
+  --flash-bad: #f3b2a8;
+  --flash-dup: #f6d48c;
+  --flash-extra: #b8cff0;
+  --backdrop: rgb(30 43 30 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="berry"] {
+  --paper: #fdf5f7;
+  --ink: #3a1a2b;
+  --ink-soft: #6e4a5c;
+  --ink-faint: #c3a6b3;
+  --line: #f0d9e1;
+  --hover: #f7e4eb;
+  --shadow: #3a1a2b;
+  --tile: #ffffff;
+  --tile-ink: #3a1a2b;
+  --tray: #e6a9bf;
+  --tray-line: rgb(58 26 43 / 0.22);
+  --accent: #7fd3c0;
+  --on-accent: #3a1a2b;
+  --accent-ink: #8a2f5a;
+  --trail: #8a2f5a;
+  --good: #1f7550;
+  --bad: #b3263a;
+  --on-bad: #ffffff;
+  --extra: #2c5fb0;
+  --flash-good: #a5dfc3;
+  --flash-bad: #f5aab4;
+  --flash-dup: #f6d48c;
+  --flash-extra: #b8cff0;
+  --backdrop: rgb(58 26 43 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="contrast"] {
+  --paper: #ffffff;
+  --ink: #000000;
+  --ink-soft: #333333;
+  --ink-faint: #767676;
+  --line: #000000;
+  --hover: #e6e6e6;
+  --shadow: #000000;
+  --tile: #ffffff;
+  --tile-ink: #000000;
+  --tray: #000000;
+  --tray-line: rgb(255 255 255 / 0.6);
+  --accent: #ffd500;
+  --on-accent: #000000;
+  --accent-ink: #6b4e00;
+  --trail: #d6005c;
+  --good: #006b35;
+  --bad: #b00020;
+  --on-bad: #ffffff;
+  --extra: #0047b3;
+  --flash-good: #8ff0b8;
+  --flash-bad: #ffb3bd;
+  --flash-dup: #ffe066;
+  --flash-extra: #a8c8ff;
+  --backdrop: rgb(0 0 0 / 0.6);
+  color-scheme: light;
+}
+
+:root {
   --hand: "Kalam", "Comic Sans MS", "Segoe Print", cursive, sans-serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --pad: 12px;
@@ -24,6 +187,10 @@ html,
 body {
   margin: 0;
   height: 100%;
+}
+
+html {
+  background: var(--paper);
 }
 
 body {
@@ -146,7 +313,7 @@ svg .dot {
 
 .home:hover,
 .icon-btn:hover {
-  background: #f6f1e7;
+  background: var(--hover);
 }
 
 .top-actions {
@@ -218,10 +385,11 @@ svg .dot {
 
 .seg input:checked + span {
   background: var(--accent);
+  color: var(--on-accent);
 }
 
 .seg label:hover input:not(:checked) + span {
-  background: #fbf3e2;
+  background: var(--hover);
 }
 
 .seg input:focus-visible + span {
@@ -271,7 +439,7 @@ svg .dot {
 .current.dup { color: var(--accent-ink); }
 .current.extra { color: var(--extra); }
 .current.muted { color: var(--ink-soft); }
-.current.nopath { color: var(--ink-faint); }
+.current.nopath { color: var(--ink-soft); text-decoration: line-through; }
 
 .clock {
   flex: none;
@@ -286,7 +454,7 @@ svg .dot {
 .clock.low {
   background: var(--bad);
   border-color: var(--bad);
-  color: #fff;
+  color: var(--on-bad);
 }
 
 .clock.paused {
@@ -305,8 +473,11 @@ svg .dot {
 }
 
 .board {
-  --size: min(100cqw, 100cqh, var(--board-max));
+  /* Leave room for the tray's rim, which sits just outside the board. */
+  --rim: 9px;
+  --size: min(100cqw - 2 * var(--rim), 100cqh - 2 * var(--rim), var(--board-max));
   position: relative;
+  isolation: isolate;
   width: var(--size);
   height: var(--size);
   display: grid;
@@ -319,6 +490,33 @@ svg .dot {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The tray the dice sit in: a rimmed board... */
+.board::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--rim));
+  z-index: -1;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  background: var(--tray);
+  box-shadow: 3px 4px 0 var(--shadow);
+}
+
+/* ...ruled into one square well per die. */
+.board::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1.5px solid var(--tray-line);
+  border-radius: 6px;
+  background-image:
+    linear-gradient(to right, var(--tray-line) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, var(--tray-line) 1.5px, transparent 1.5px);
+  background-size: calc(100% / var(--n, 4)) calc(100% / var(--n, 4));
+  background-position: -0.75px -0.75px;
+}
+
 .tile {
   margin: 5.5%;
   padding: 0;
@@ -328,7 +526,8 @@ svg .dot {
   border: 2.5px solid var(--ink);
   border-radius: 18%;
   background: var(--tile);
-  box-shadow: 2px 3px 0 var(--ink);
+  color: var(--tile-ink);
+  box-shadow: 2px 3px 0 var(--shadow);
   font-family: var(--hand);
   font-weight: 700;
   font-size: calc(var(--size) / var(--n, 4) * 0.46);
@@ -343,22 +542,28 @@ svg .dot {
 
 .tile[aria-pressed="true"] {
   background: var(--accent);
+  color: var(--on-accent);
   transform: translate(1px, 1px);
-  box-shadow: 1px 2px 0 var(--ink);
+  box-shadow: 1px 2px 0 var(--shadow);
 }
 
 .tile.first {
-  box-shadow: 1px 2px 0 var(--ink), inset 0 0 0 3px #fff8;
+  box-shadow: 1px 2px 0 var(--shadow), inset 0 0 0 3px var(--tile);
 }
 
 .board.tracing .tile:not([aria-pressed="true"]) {
   opacity: 0.7;
 }
 
-.board[data-flash="good"] .tile[aria-pressed="true"] { background: #8fd6b0; }
-.board[data-flash="bad"] .tile[aria-pressed="true"] { background: #f2a7a2; }
-.board[data-flash="dup"] .tile[aria-pressed="true"] { background: #f7d58b; }
-.board[data-flash="extra"] .tile[aria-pressed="true"] { background: #a9c8f2; }
+/* High contrast keeps every letter at full strength while you draw. */
+[data-theme="contrast"] .board.tracing .tile:not([aria-pressed="true"]) {
+  opacity: 1;
+}
+
+.board[data-flash="good"] .tile[aria-pressed="true"] { background: var(--flash-good); }
+.board[data-flash="bad"] .tile[aria-pressed="true"] { background: var(--flash-bad); }
+.board[data-flash="dup"] .tile[aria-pressed="true"] { background: var(--flash-dup); }
+.board[data-flash="extra"] .tile[aria-pressed="true"] { background: var(--flash-extra); }
 
 .board[data-flash="bad"] {
   animation: shake 0.28s ease;
@@ -380,7 +585,7 @@ svg .dot {
 }
 
 .trail polyline {
-  stroke: var(--accent-ink);
+  stroke: var(--trail);
   stroke-opacity: 0.55;
   stroke-width: 0.16;
 }
@@ -452,7 +657,7 @@ svg .dot {
 
 .chip:hover,
 .chip[aria-expanded="true"] {
-  background: #fbf3e2;
+  background: var(--hover);
   text-decoration-color: currentColor;
 }
 
@@ -471,7 +676,7 @@ svg .dot {
 }
 
 @keyframes ping {
-  0%, 60% { background: #f7d58b; }
+  0%, 60% { background: var(--flash-dup); color: var(--on-accent); }
 }
 
 .group {
@@ -535,7 +740,7 @@ svg .dot {
   border: 2.5px solid var(--ink);
   border-radius: 14px;
   background: var(--paper);
-  box-shadow: 2px 3px 0 var(--ink);
+  box-shadow: 2px 3px 0 var(--shadow);
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -543,11 +748,12 @@ svg .dot {
 
 .btn:active {
   transform: translate(1px, 2px);
-  box-shadow: 1px 1px 0 var(--ink);
+  box-shadow: 1px 1px 0 var(--shadow);
 }
 
 .btn.primary {
   background: var(--accent);
+  color: var(--on-accent);
 }
 
 .btn svg {
@@ -571,7 +777,7 @@ svg .dot {
   border-radius: 14px;
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 4px 5px 0 var(--ink);
+  box-shadow: 4px 5px 0 var(--shadow);
 }
 
 /* Fallback for browsers without the Popover API. */
@@ -646,14 +852,14 @@ dialog {
   padding: 20px 20px 18px;
   border: 2.5px solid var(--ink);
   border-radius: 18px;
-  box-shadow: 5px 6px 0 var(--ink);
+  box-shadow: 5px 6px 0 var(--shadow);
   color: var(--ink);
   background: var(--paper);
   overflow-y: auto;
 }
 
 dialog::backdrop {
-  background: rgb(46 43 39 / 0.45);
+  background: var(--backdrop);
 }
 
 dialog h2 {
@@ -721,7 +927,7 @@ dialog p {
 }
 
 .scoring thead th {
-  background: #fbf3e2;
+  background: var(--hover);
 }
 
 kbd {
@@ -741,6 +947,105 @@ kbd {
 
 .credit a {
   color: inherit;
+}
+
+.themes {
+  margin: 0 0 18px;
+}
+
+.themes fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.themes legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.theme-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px 5px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.theme-option:hover {
+  background: var(--hover);
+}
+
+.theme-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.theme-option:has(input:checked) {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+.theme-option:has(input:focus-visible) {
+  outline: 3px solid var(--extra);
+  outline-offset: 2px;
+}
+
+/* A mini tray in the option's own colours (it carries its data-theme). */
+.swatch {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--tray);
+  box-shadow: 0 0 0 3px var(--paper);
+  pointer-events: none;
+}
+
+.sw-tile {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--tile);
+  color: var(--tile-ink);
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.sw-tile.sw-on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.theme-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .toggle {
