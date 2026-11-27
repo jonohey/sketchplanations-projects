@@ -443,6 +443,15 @@ svg .dot {
 
 .clock {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 38px;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
   font-weight: 700;
   font-size: 1.2rem;
   font-variant-numeric: tabular-nums;
@@ -459,6 +468,93 @@ svg .dot {
 
 .clock.paused {
   opacity: 0.55;
+}
+
+.clock:hover {
+  background: var(--hover);
+}
+
+.clock-pause {
+  display: none;
+  width: 22px;
+  height: 22px;
+}
+
+/* Paused by the player: the countdown becomes a pause symbol. */
+.clock[aria-pressed="true"] {
+  opacity: 1;
+  background: var(--accent);
+  border-color: var(--ink);
+  color: var(--on-accent);
+}
+
+.clock[aria-pressed="true"] #clock-text {
+  display: none;
+}
+
+.clock[aria-pressed="true"] .clock-pause {
+  display: block;
+}
+
+.clock:disabled {
+  cursor: default;
+}
+
+/* ---------- paused: hide the board ---------- */
+
+.board,
+.found {
+  transition: filter 0.2s ease;
+}
+
+.play.paused:not(.peek) .board,
+.play.paused:not(.peek) .found {
+  filter: blur(14px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.play.paused.peek .board {
+  opacity: 0.85;
+}
+
+.board-area {
+  position: relative;
+}
+
+.pause-card {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(280px, 90%);
+  height: max-content;
+  z-index: 5;
+  padding: 18px 16px 16px;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: 4px 5px 0 var(--shadow);
+  text-align: center;
+}
+
+.pause-title {
+  margin: 0;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+
+.pause-sub {
+  margin: 4px 0 14px;
+  color: var(--ink-soft);
+}
+
+.pause-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /* ---------- board ---------- */

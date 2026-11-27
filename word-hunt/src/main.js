@@ -25,6 +25,11 @@ const els = {
   trailLine: $("trail-line"),
   current: $("current"),
   clock: $("clock"),
+  play: document.querySelector(".play"),
+  boardArea: document.querySelector(".board-area"),
+  pauseCard: $("pause-card"),
+  resume: $("btn-resume"),
+  peek: $("btn-peek"),
   clockText: $("clock-text"),
   found: $("found"),
   empty: $("empty"),
@@ -432,7 +437,7 @@ function considerCell(i) {
 }
 
 els.board.addEventListener("pointerdown", (e) => {
-  if (game.over || !e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
+  if (locked() || !e.isPrimary || (e.pointerType === "mouse" && e.button !== 0)) return;
   input.rect = els.board.getBoundingClientRect();
   const i = cellAt(e.clientX, e.clientY, true);
   if (i < 0) return;
@@ -486,7 +491,7 @@ els.board.addEventListener("contextmenu", (e) => e.preventDefault());
 // Real pointer clicks have e.detail > 0 and are handled by the drag code.
 els.board.addEventListener("click", (e) => {
   const tile = e.target.closest(".tile");
-  if (!tile || e.detail !== 0 || game.over) return;
+  if (!tile || e.detail !== 0 || locked()) return;
   const i = Number(tile.dataset.i);
   const { path } = input;
   clearTimeout(flashTimer);
@@ -532,7 +537,7 @@ function dialogOpen() {
 }
 
 document.addEventListener("keydown", (e) => {
-  if (dialogOpen() || e.metaKey || e.ctrlKey || e.altKey || game.over) return;
+  if (dialogOpen() || e.metaKey || e.ctrlKey || e.altKey || locked()) return;
   if (definitionOpen()) {
     if (!hasPopover && e.key === "Escape") {
       closeDefinition();
@@ -592,13 +597,28 @@ document.addEventListener("keydown", (e) => {
 
 // ------------------------------------------------------------------- timer
 
-const timer = { total: 0, remaining: 0, endsAt: 0, running: false, tick: 0, shown: -1 };
+const timer = {
+  total: 0,
+  remaining: 0,
+  endsAt: 0,
+  running: false,
+  tick: 0,
+  shown: -1,
+  userPaused: false, // paused by tapping the clock (not just a hidden tab)
+};
+
+/** Is the board closed to play right now? */
+function locked() {
+  return game.over || timer.userPaused;
+}
 
 function startTimer() {
   stopTicking();
   timer.total = settings.timer * 60000;
   timer.remaining = timer.total;
   timer.shown = -1;
+  setUserPaused(false);
+  els.clock.disabled = false;
   els.clock.hidden = !timer.total;
   els.clock.classList.remove("low", "paused");
   if (!timer.total) return;
@@ -608,7 +628,7 @@ function startTimer() {
 }
 
 function resumeTimer() {
-  if (!timer.total || timer.running || game.over || timer.remaining <= 0) return;
+  if (!timer.total || timer.running || locked() || timer.remaining <= 0) return;
   timer.endsAt = performance.now() + timer.remaining;
   timer.running = true;
   els.clock.classList.remove("paused");
@@ -642,6 +662,52 @@ function updateClock() {
   }
 }
 
+// Tap the clock to pause; the board blurs until you resume or peek.
+function setUserPaused(on, peek = false) {
+  timer.userPaused = on;
+  els.clock.setAttribute("aria-pressed", on ? "true" : "false");
+  els.play.classList.toggle("paused", on);
+  els.play.classList.toggle("peek", on && peek);
+  els.pauseCard.hidden = !on || peek;
+  // While blurred, keep the letters and words away from screen readers too.
+  els.boardArea.querySelector(".board").inert = on && !peek;
+  els.found.inert = on && !peek;
+}
+
+function pauseByPlayer() {
+  if (!timer.total || locked()) return;
+  cancelInput();
+  closeDefinition();
+  pauseTimer();
+  els.clock.classList.remove("paused");
+  setUserPaused(true);
+  showMessage("Paused", "muted");
+  announce("Timer paused. No peeking!");
+  els.resume.focus({ preventScroll: true });
+}
+
+function resumeByPlayer() {
+  if (!timer.userPaused) return;
+  const hadFocus = els.pauseCard.contains(document.activeElement);
+  setUserPaused(false);
+  showMessage("", "");
+  if (!document.hidden && !dialogOpen()) resumeTimer();
+  announce("Timer running");
+  if (hadFocus) els.clock.focus({ preventScroll: true });
+}
+
+els.clock.addEventListener("click", () => {
+  if (timer.userPaused) resumeByPlayer();
+  else pauseByPlayer();
+});
+els.resume.addEventListener("click", resumeByPlayer);
+els.peek.addEventListener("click", () => {
+  setUserPaused(true, true);
+  showMessage("Paused. Tap timer to resume", "muted");
+  announce("Showing the board. The timer is still paused.");
+  els.clock.focus({ preventScroll: true });
+});
+
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) pauseTimer();
   else if (!dialogOpen()) resumeTimer();
@@ -651,6 +717,8 @@ document.addEventListener("visibilitychange", () => {
 
 function endGame(reason) {
   if (game.over) return;
+  setUserPaused(false);
+  els.clock.disabled = true;
   stopTicking();
   cancelInput();
   game.over = true;
