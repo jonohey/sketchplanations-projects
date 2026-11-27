@@ -822,6 +822,15 @@ svg .dot {
   font-size: 1.35rem;
 }
 
+.tally .target {
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+
+.tally .target.beaten {
+  color: var(--good);
+}
+
 .tally .count {
   font-size: 0.85rem;
   color: var(--ink-soft);
@@ -938,6 +947,47 @@ svg .dot {
 
 .define-credit a {
   color: var(--extra);
+}
+
+/* ---------- share ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 20;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 4px 0 var(--shadow);
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast:empty {
+  display: none;
+}
+
+.share-url {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--hover);
+  font-size: 0.95rem;
 }
 
 /* ---------- dialogs ---------- */

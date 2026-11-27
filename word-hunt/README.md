@@ -8,6 +8,11 @@ Trace words across a fresh toss of letter dice. Drag through touching tiles
 - Names and slang are recorded in blue but score nothing
 - Tap any found (or missed) word to see its definition, fetched from
   Wiktionary on demand. Inflections like "jumped" also show the base word
+- Share button copies a link to the current board (size, letters, timer and
+  your score so far), so friends can play the same letters and see the
+  points to beat. The link uses `?b=` plus a code with
+  one shifted letter per tile, so it doesn't give the board away. It only
+  appears in the address bar when you open someone's link
 - Optional (Settings): show how many words are on the board and reveal the
   ones you missed
 

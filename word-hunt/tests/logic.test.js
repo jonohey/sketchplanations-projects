@@ -16,6 +16,10 @@ import {
   pathWord,
   findPath,
   solve,
+  encodeBoard,
+  decodeBoard,
+  shareParams,
+  readShareParams,
 } from "../src/logic.js";
 
 const tiny = makeDictionary(["cat", "cats", "coat", "quit", "quite", "tac"], ["Paris", "yeet"]);
@@ -99,4 +103,47 @@ test("shipped word list loads and has common words", () => {
   for (const w of ["cats", "quiet", "jumped", "boxes", "colour"]) assert.equal(lookup(dict, w).kind, "word", w);
   assert.equal(lookup(dict, "london").kind, "name");
   assert.equal(lookup(dict, "selfie").kind, "slang");
+});
+
+test("boards round-trip through share codes", () => {
+  for (const n of SIZES) {
+    for (let k = 0; k < 50; k++) {
+      const tiles = rollBoard(n);
+      const code = encodeBoard(tiles, n);
+      assert.match(code, new RegExp(`^${n}[a-z]{${n * n}}$`));
+      assert.deepEqual(decodeBoard(code), { size: n, tiles });
+    }
+  }
+});
+
+test("share codes don't spell the board", () => {
+  const tiles = ["c", "a", "t", "s", "o", "x", "qu", "i", "e"];
+  assert.notEqual(encodeBoard(tiles, 3).slice(1, 4), "cat");
+});
+
+test("bad share codes are rejected", () => {
+  for (const bad of [null, "", "4abc", "7" + "a".repeat(49), "3abcdefgh1", "2abcd", "4" + "a".repeat(17)]) {
+    assert.equal(decodeBoard(bad), null, String(bad));
+  }
+});
+
+test("share links carry the timer and the score to beat", () => {
+  const tiles = rollBoard(4);
+  const q = shareParams(tiles, 4, 2, 23);
+  assert.deepEqual(readShareParams("?" + q), { board: { size: 4, tiles }, invalid: false, timer: 2, target: 23 });
+
+  const untimed = readShareParams("?" + shareParams(tiles, 4, 0, 0));
+  assert.equal(untimed.timer, 0);
+  assert.equal(untimed.target, null, "no score yet means nothing to beat");
+  assert.match(shareParams(tiles, 4, 0, 0), /(^|&)t=0(&|$)/, "untimed is passed explicitly");
+});
+
+test("share link params are checked", () => {
+  assert.deepEqual(readShareParams(""), { board: null, invalid: false });
+  assert.deepEqual(readShareParams("?b=4zz"), { board: null, invalid: true });
+  const b = encodeBoard(rollBoard(3), 3);
+  assert.equal(readShareParams(`?b=${b}&t=9`).timer, 0);
+  assert.equal(readShareParams(`?b=${b}&s=-4`).target, null);
+  assert.equal(readShareParams(`?b=${b}&s=12345`).target, null);
+  assert.equal(readShareParams(`?b=${b}&s=abc`).target, null);
 });
