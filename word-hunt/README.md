@@ -13,6 +13,10 @@ Trace words across a fresh toss of letter dice. Drag through touching tiles
   points to beat. The link uses `?b=` plus a code with
   one shifted letter per tile, so it doesn't give the board away. It only
   appears in the address bar when you open someone's link
+- Music button (speaker / muted speaker) plays "After the Practice" by Jono
+  Hey on a loop, with fades. Off by default and remembered; the file only
+  downloads when music is first turned on, and it rests while the timer is
+  paused or the tab is hidden. Tracks are listed in `src/music.js`
 - Optional (Settings): show how many words are on the board and reveal the
   ones you missed
 
@@ -29,6 +33,8 @@ static server, e.g. `python3 -m http.server` from the repo root.
 | `index.html`, `style.css` | Page and styles (mobile first; landscape phones get a side-by-side layout) |
 | `src/logic.js` | Pure logic: dice, adjacency, scoring, word lookup, solver |
 | `src/main.js` | UI: drag + keyboard input, timer, word lists, dialogs, definition popover |
+| `src/music.js` | Background music: track list, fades, pause handling |
+| `music/` | Music files (AAC, ~96 kbps). Convert with `afconvert -f m4af -d aac -b 96000 in.wav out.m4a` |
 | `src/define.js` | Fetches and caches definitions from Wiktionary's REST API |
 | `words/words.txt` | Scoring words, front-coded (see `tools/build-words.mjs`) |
 | `words/extra.txt` | Zero-point names (capitalised) and slang (lowercase) |

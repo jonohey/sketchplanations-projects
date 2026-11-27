@@ -321,6 +321,22 @@ svg .dot {
   margin-right: -8px;
 }
 
+/* Five header icons on a small phone: tighten them a little. */
+@media (max-width: 400px) {
+  .top-actions .icon-btn {
+    width: 40px;
+  }
+}
+
+#btn-music .music-on,
+#btn-music[aria-pressed="true"] .music-off {
+  display: none;
+}
+
+#btn-music[aria-pressed="true"] .music-on {
+  display: block;
+}
+
 /* ---------- segmented controls ---------- */
 
 .controls {

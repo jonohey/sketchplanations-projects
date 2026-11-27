@@ -29,6 +29,10 @@
       </a>
       <h1>Word Hunt</h1>
       <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-music" aria-pressed="false" aria-label="Music" title="Music on/off" hidden>
+          <svg class="music-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.7 7.7 0 0 1 0 11" /></svg>
+          <svg class="music-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M16 9.5l5 5M21 9.5l-5 5" /></svg>
+        </button>
         <button type="button" class="icon-btn" id="btn-share" aria-label="Copy a link to this board">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M8 7.5l4-4 4 4" /><path d="M8.5 10.5H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.5" /></svg>
         </button>
@@ -157,6 +161,7 @@
     <p>Pick a grid from 3&times;3 to 6&times;6, and play untimed or against a 1, 2 or 3&nbsp;minute timer. <strong>Reroll</strong> tosses a fresh set of letters. Tap the timer to pause (the board hides until you resume, or choose Show board) and tap it again to carry on. The timer also pauses while this box is open. The <strong>share</strong> button copies a link to the current board, timer and your score, so friends can play the same letters and try to beat you. <strong>Settings</strong> has six colour schemes, all high contrast, including a dark one.</p>
     <h3>Keyboard</h3>
     <p>Type a word and press <kbd>Enter</kbd>. Or <kbd>Tab</kbd> to the grid, move with arrow keys, pick letters with <kbd>Space</kbd> and press it again on the last letter to play. <kbd>Backspace</kbd> undoes a letter, <kbd>Esc</kbd> clears.</p>
+    <p class="credit" id="music-credit" hidden>Music by <a href="https://jonohey.bandcamp.com/">Jono Hey</a>. Tap the speaker to turn it on or off.</p>
     <p class="credit">Words from the public-domain ENABLE list; names from Webster's Second; definitions from <a href="https://en.wiktionary.org/">Wiktionary</a> (CC BY-SA). A <a href="https://sketchplanations.com">Sketchplanations</a> experiment.</p>
   </dialog>
 
