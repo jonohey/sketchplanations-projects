@@ -17,6 +17,11 @@ Trace words across a fresh toss of letter dice. Drag through touching tiles
   Hey on a loop, with fades. Off by default and remembered; the file only
   downloads when music is first turned on, and it rests while the timer is
   paused or the tab is hidden. Tracks are listed in `src/music.js`
+- Full screen button (corner brackets). Uses the browser's full screen mode
+  where it's allowed (desktop, Android, Safari on iPad). Where it isn't
+  (iPhone, and other iPad browsers if they don't offer it), the button
+  explains Add to Home Screen; the manifest
+  and icons in `icons/` make the home-screen version open without browser bars
 - Optional (Settings): show how many words are on the board and reveal the
   ones you missed
 
