@@ -1,0 +1,1137 @@
+/* ---------- colour schemes ----------
+   Every colour comes from these variables. Each scheme sets all of them, and
+   tests/themes.test.js checks the text and edge pairs for WCAG AA contrast.
+   [data-theme] works on any element, so Settings can preview each scheme. */
+
+:root,
+[data-theme="classic"] {
+  --paper: #ffffff;
+  --ink: #2e2b27;
+  --ink-soft: #6b655b;
+  --ink-faint: #b5ada0;
+  --line: #e7dfd0;
+  --hover: #fbf3e2;
+  --shadow: #2e2b27;
+  --tile: #fff6e6;
+  --tile-ink: #2e2b27;
+  --tray: #efdcb6;
+  --tray-line: rgb(46 43 39 / 0.22);
+  --accent: #f2a93b;
+  --on-accent: #2e2b27;
+  --accent-ink: #94560a;
+  --trail: #94560a;
+  --good: #1f7a52;
+  --bad: #c0392b;
+  --on-bad: #ffffff;
+  --extra: #2a64b8;
+  --flash-good: #9fdcbc;
+  --flash-bad: #f4b3ae;
+  --flash-dup: #f7d58b;
+  --flash-extra: #b5d0f5;
+  --backdrop: rgb(46 43 39 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="night"] {
+  --paper: #17161c;
+  --ink: #f4efe6;
+  --ink-soft: #b9b2a6;
+  --ink-faint: #6d675e;
+  --line: #3a3742;
+  --hover: #2a2832;
+  --shadow: #000000;
+  --tile: #2b2934;
+  --tile-ink: #fff8ec;
+  --tray: #4a3f5c;
+  --tray-line: rgb(255 255 255 / 0.16);
+  --accent: #ffb648;
+  --on-accent: #17161c;
+  --accent-ink: #ffc46b;
+  --trail: #ffffff;
+  --good: #5fd39a;
+  --bad: #ff8a80;
+  --on-bad: #17161c;
+  --extra: #8ab4ff;
+  --flash-good: #7fdcae;
+  --flash-bad: #ff9d95;
+  --flash-dup: #ffd27a;
+  --flash-extra: #a9c8ff;
+  --backdrop: rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+[data-theme="sea"] {
+  --paper: #f2f8fc;
+  --ink: #0f2a3f;
+  --ink-soft: #44617a;
+  --ink-faint: #9bb3c6;
+  --line: #cfe0ec;
+  --hover: #e1eef7;
+  --shadow: #0f2a3f;
+  --tile: #ffffff;
+  --tile-ink: #0f2a3f;
+  --tray: #8fc1e3;
+  --tray-line: rgb(15 42 63 / 0.25);
+  --accent: #ffcf56;
+  --on-accent: #0f2a3f;
+  --accent-ink: #855600;
+  --trail: #855600;
+  --good: #1d7a4e;
+  --bad: #b8322a;
+  --on-bad: #ffffff;
+  --extra: #1f5fae;
+  --flash-good: #a8e2c4;
+  --flash-bad: #f6b4ae;
+  --flash-dup: #ffe08a;
+  --flash-extra: #bcd6f7;
+  --backdrop: rgb(15 42 63 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="forest"] {
+  --paper: #f4f7ef;
+  --ink: #1e2b1e;
+  --ink-soft: #4d5e4a;
+  --ink-faint: #a3b39d;
+  --line: #d8e2cf;
+  --hover: #e6eedc;
+  --shadow: #1e2b1e;
+  --tile: #fffdf4;
+  --tile-ink: #1e2b1e;
+  --tray: #9dbf8a;
+  --tray-line: rgb(30 43 30 / 0.25);
+  --accent: #f0a35e;
+  --on-accent: #1e2b1e;
+  --accent-ink: #8c4a12;
+  --trail: #8c4a12;
+  --good: #1c6e3f;
+  --bad: #b33a2e;
+  --on-bad: #ffffff;
+  --extra: #2a5ea8;
+  --flash-good: #a9dcb8;
+  --flash-bad: #f3b2a8;
+  --flash-dup: #f6d48c;
+  --flash-extra: #b8cff0;
+  --backdrop: rgb(30 43 30 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="berry"] {
+  --paper: #fdf5f7;
+  --ink: #3a1a2b;
+  --ink-soft: #6e4a5c;
+  --ink-faint: #c3a6b3;
+  --line: #f0d9e1;
+  --hover: #f7e4eb;
+  --shadow: #3a1a2b;
+  --tile: #ffffff;
+  --tile-ink: #3a1a2b;
+  --tray: #e6a9bf;
+  --tray-line: rgb(58 26 43 / 0.22);
+  --accent: #7fd3c0;
+  --on-accent: #3a1a2b;
+  --accent-ink: #8a2f5a;
+  --trail: #8a2f5a;
+  --good: #1f7550;
+  --bad: #b3263a;
+  --on-bad: #ffffff;
+  --extra: #2c5fb0;
+  --flash-good: #a5dfc3;
+  --flash-bad: #f5aab4;
+  --flash-dup: #f6d48c;
+  --flash-extra: #b8cff0;
+  --backdrop: rgb(58 26 43 / 0.45);
+  color-scheme: light;
+}
+
+[data-theme="contrast"] {
+  --paper: #ffffff;
+  --ink: #000000;
+  --ink-soft: #333333;
+  --ink-faint: #767676;
+  --line: #000000;
+  --hover: #e6e6e6;
+  --shadow: #000000;
+  --tile: #ffffff;
+  --tile-ink: #000000;
+  --tray: #000000;
+  --tray-line: rgb(255 255 255 / 0.6);
+  --accent: #ffd500;
+  --on-accent: #000000;
+  --accent-ink: #6b4e00;
+  --trail: #d6005c;
+  --good: #006b35;
+  --bad: #b00020;
+  --on-bad: #ffffff;
+  --extra: #0047b3;
+  --flash-good: #8ff0b8;
+  --flash-bad: #ffb3bd;
+  --flash-dup: #ffe066;
+  --flash-extra: #a8c8ff;
+  --backdrop: rgb(0 0 0 / 0.6);
+  color-scheme: light;
+}
+
+:root {
+  --hand: "Kalam", "Comic Sans MS", "Segoe Print", cursive, sans-serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --pad: 12px;
+  --board-max: 520px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--extra);
+  outline-offset: 2px;
+}
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+svg .dot {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ---------- layout: one screen, no page scroll ---------- */
+
+.app {
+  height: 100vh;
+  height: 100dvh;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: max(6px, env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(var(--pad), env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.play {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- header ---------- */
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+}
+
+.top h1 {
+  margin: 0;
+  flex: 1;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding-top: 4px;
+}
+
+.home,
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.home {
+  width: 32px;
+  margin-left: -6px;
+}
+
+.home svg,
+.icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.home:hover,
+.icon-btn:hover {
+  background: var(--hover);
+}
+
+.top-actions {
+  display: flex;
+  margin-right: -8px;
+}
+
+/* ---------- segmented controls ---------- */
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+}
+
+.seg {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.seg legend {
+  padding: 0 0 3px 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.seg-options {
+  display: flex;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.seg label {
+  flex: 1;
+  position: relative;
+}
+
+.seg label + label {
+  border-left: 2px solid var(--ink);
+}
+
+.seg input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.seg label > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.seg input:checked + span {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.seg label:hover input:not(:checked) + span {
+  background: var(--hover);
+}
+
+.seg input:focus-visible + span {
+  outline: 3px solid var(--extra);
+  outline-offset: -5px;
+  border-radius: 8px;
+}
+
+/* ---------- status line ---------- */
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+}
+
+.status p {
+  margin: 0;
+}
+
+.current {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.current.msg {
+  font-size: 1.15rem;
+  letter-spacing: 0;
+}
+
+.current .pts {
+  font-size: 0.85em;
+  margin-left: 0.35em;
+}
+
+.current.good { color: var(--good); }
+.current.bad { color: var(--bad); }
+.current.dup { color: var(--accent-ink); }
+.current.extra { color: var(--extra); }
+.current.muted { color: var(--ink-soft); }
+.current.nopath { color: var(--ink-soft); text-decoration: line-through; }
+
+.clock {
+  flex: none;
+  font-weight: 700;
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+}
+
+.clock.low {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--on-bad);
+}
+
+.clock.paused {
+  opacity: 0.55;
+}
+
+/* ---------- board ---------- */
+
+.board-area {
+  flex: 1000 1 0;
+  min-height: 120px;
+  max-height: min(calc(100vw - 2 * var(--pad)), var(--board-max));
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+
+.board {
+  /* Leave room for the tray's rim, which sits just outside the board. */
+  --rim: 9px;
+  --size: min(100cqw - 2 * var(--rim), 100cqh - 2 * var(--rim), var(--board-max));
+  position: relative;
+  isolation: isolate;
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), 1fr);
+  grid-template-rows: repeat(var(--n, 4), 1fr);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The tray the dice sit in: a rimmed board... */
+.board::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--rim));
+  z-index: -1;
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  background: var(--tray);
+  box-shadow: 3px 4px 0 var(--shadow);
+}
+
+/* ...ruled into one square well per die. */
+.board::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1.5px solid var(--tray-line);
+  border-radius: 6px;
+  background-image:
+    linear-gradient(to right, var(--tray-line) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, var(--tray-line) 1.5px, transparent 1.5px);
+  background-size: calc(100% / var(--n, 4)) calc(100% / var(--n, 4));
+  background-position: -0.75px -0.75px;
+}
+
+.tile {
+  margin: 5.5%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid var(--ink);
+  border-radius: 18%;
+  background: var(--tile);
+  color: var(--tile-ink);
+  box-shadow: 2px 3px 0 var(--shadow);
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: calc(var(--size) / var(--n, 4) * 0.46);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.08s ease, transform 0.08s ease, opacity 0.2s ease;
+}
+
+.tile .qu {
+  font-size: 0.78em;
+}
+
+.tile[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 2px 0 var(--shadow);
+}
+
+.tile.first {
+  box-shadow: 1px 2px 0 var(--shadow), inset 0 0 0 3px var(--tile);
+}
+
+.board.tracing .tile:not([aria-pressed="true"]) {
+  opacity: 0.7;
+}
+
+/* High contrast keeps every letter at full strength while you draw. */
+[data-theme="contrast"] .board.tracing .tile:not([aria-pressed="true"]) {
+  opacity: 1;
+}
+
+.board[data-flash="good"] .tile[aria-pressed="true"] { background: var(--flash-good); }
+.board[data-flash="bad"] .tile[aria-pressed="true"] { background: var(--flash-bad); }
+.board[data-flash="dup"] .tile[aria-pressed="true"] { background: var(--flash-dup); }
+.board[data-flash="extra"] .tile[aria-pressed="true"] { background: var(--flash-extra); }
+
+.board[data-flash="bad"] {
+  animation: shake 0.28s ease;
+}
+
+.board.over .tile {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.trail polyline {
+  stroke: var(--trail);
+  stroke-opacity: 0.55;
+  stroke-width: 0.16;
+}
+
+.board[data-flash="good"] .trail polyline { stroke: var(--good); }
+.board[data-flash="bad"] .trail polyline { stroke: var(--bad); }
+.board[data-flash="extra"] .trail polyline { stroke: var(--extra); }
+
+.board.rolling .tile {
+  animation: toss 0.38s cubic-bezier(0.3, 1.4, 0.6, 1) both;
+  animation-delay: calc(var(--i) * 14ms);
+}
+
+@keyframes toss {
+  from { transform: rotate(-30deg) scale(0.4); opacity: 0; }
+}
+
+@keyframes shake {
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ---------- found words ---------- */
+
+.found {
+  flex: 1 1 84px;
+  min-height: 84px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-top: 2px dashed var(--line);
+  padding-top: 8px;
+}
+
+.empty {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.chips li {
+  font-family: var(--hand);
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.chip {
+  padding: 0 4px;
+  margin: 0 -4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted 1.5px;
+  text-decoration-color: var(--ink-faint);
+  text-underline-offset: 4px;
+}
+
+.chip:hover,
+.chip[aria-expanded="true"] {
+  background: var(--hover);
+  text-decoration-color: currentColor;
+}
+
+.chips .pts {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  vertical-align: super;
+  margin-left: 2px;
+  color: var(--ink-soft);
+}
+
+.chips li.ping .chip {
+  animation: ping 0.6s ease;
+  border-radius: 6px;
+}
+
+@keyframes ping {
+  0%, 60% { background: var(--flash-dup); color: var(--on-accent); }
+}
+
+.group {
+  margin-top: 10px;
+}
+
+.group-label {
+  margin: 0 0 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.group-label .hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.chips.extras li {
+  color: var(--extra);
+}
+
+.chips.missed li {
+  color: var(--ink-soft);
+}
+
+/* ---------- bottom bar ---------- */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tally {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.tally .score strong {
+  font-size: 1.35rem;
+}
+
+.tally .count {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 46px;
+  padding: 0 16px;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 2px 3px 0 var(--shadow);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn:active {
+  transform: translate(1px, 2px);
+  box-shadow: 1px 1px 0 var(--shadow);
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------- definition popover ---------- */
+
+.define {
+  position: fixed;
+  inset: auto;
+  left: 12px;
+  top: 12px;
+  margin: 0;
+  width: min(320px, calc(100vw - 16px));
+  max-height: min(60dvh, 360px);
+  overflow-y: auto;
+  padding: 12px 14px 10px;
+  border: 2.5px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 4px 5px 0 var(--shadow);
+}
+
+/* Fallback for browsers without the Popover API. */
+.define:not([popover]) {
+  display: none;
+  z-index: 10;
+}
+
+.define:not([popover]).open {
+  display: block;
+}
+
+.define-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -6px -8px 2px 0;
+}
+
+.define-head h2 {
+  flex: 1;
+  margin: 0;
+  font-family: var(--hand);
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.define-body {
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.define-body ol {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
+.define-body li + li {
+  margin-top: 4px;
+}
+
+.define-body .pos {
+  color: var(--ink-soft);
+}
+
+.define-body h3 {
+  margin: 10px 0 4px;
+  font-family: var(--hand);
+  font-size: 1.1rem;
+}
+
+.define-note {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.define-credit {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.define-credit a {
+  color: var(--extra);
+}
+
+/* ---------- dialogs ---------- */
+
+dialog {
+  width: min(440px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 20px 20px 18px;
+  border: 2.5px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 5px 6px 0 var(--shadow);
+  color: var(--ink);
+  background: var(--paper);
+  overflow-y: auto;
+}
+
+dialog::backdrop {
+  background: var(--backdrop);
+}
+
+dialog h2 {
+  margin: 0 40px 10px 0;
+  font-family: var(--hand);
+  font-size: 1.7rem;
+  line-height: 1.1;
+}
+
+dialog h3 {
+  margin: 16px 0 6px;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+dialog p,
+dialog li {
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+dialog p {
+  margin: 0 0 8px;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin: 0;
+}
+
+.rules {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.rules li + li {
+  margin-top: 4px;
+}
+
+.extra-sample {
+  color: var(--extra);
+  font-weight: 600;
+}
+
+.scoring {
+  border-collapse: collapse;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.scoring th,
+.scoring td {
+  border: 1.5px solid var(--line);
+  padding: 4px 2px;
+}
+
+.scoring th[scope="row"] {
+  text-align: left;
+  padding-left: 8px;
+}
+
+.scoring thead th {
+  background: var(--hover);
+}
+
+kbd {
+  font-family: var(--sans);
+  font-size: 0.8em;
+  padding: 1px 5px;
+  border: 1.5px solid var(--ink-faint);
+  border-bottom-width: 2.5px;
+  border-radius: 5px;
+}
+
+.credit {
+  margin-top: 14px !important;
+  font-size: 0.8rem !important;
+  color: var(--ink-soft);
+}
+
+.credit a {
+  color: inherit;
+}
+
+.themes {
+  margin: 0 0 18px;
+}
+
+.themes fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.themes legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.theme-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 4px 5px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.theme-option:hover {
+  background: var(--hover);
+}
+
+.theme-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.theme-option:has(input:checked) {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+.theme-option:has(input:focus-visible) {
+  outline: 3px solid var(--extra);
+  outline-offset: 2px;
+}
+
+/* A mini tray in the option's own colours (it carries its data-theme). */
+.swatch {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--tray);
+  box-shadow: 0 0 0 3px var(--paper);
+  pointer-events: none;
+}
+
+.sw-tile {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--tile);
+  color: var(--tile-ink);
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.sw-tile.sw-on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.theme-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.toggle {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.toggle input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 2px 0 0;
+  accent-color: var(--accent-ink);
+}
+
+.toggle-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* ---------- short portrait screens: give the board every pixel ---------- */
+
+@media (max-height: 640px) and (orientation: portrait) {
+  .app { gap: 6px; }
+  .play { gap: 6px; }
+  .top { min-height: 38px; }
+  .top h1 { font-size: 1.5rem; }
+  .seg legend { display: none; }
+  .seg label > span { height: 34px; }
+  .status { min-height: 32px; }
+  .current { font-size: 1.35rem; }
+  .current.msg { font-size: 1rem; }
+  .found { flex-basis: 64px; min-height: 64px; padding-top: 6px; }
+  .btn { height: 42px; }
+}
+
+/* ---------- landscape phones: board left, everything else right ---------- */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .app {
+    max-width: none;
+    display: grid;
+    grid-template-columns: auto minmax(240px, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "play top"
+      "play controls"
+      "play status"
+      "play found"
+      "play bar";
+    column-gap: 18px;
+  }
+
+  .top { grid-area: top; }
+  .controls { grid-area: controls; }
+  .bar { grid-area: bar; }
+
+  /* Lift the board and status out into the left column. */
+  .play {
+    display: contents;
+  }
+
+  .status { grid-area: status; }
+
+  .board-area {
+    grid-area: play;
+    width: calc(100dvh - 20px);
+    height: calc(100dvh - 20px);
+    max-height: none;
+  }
+
+  .found {
+    grid-area: found;
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

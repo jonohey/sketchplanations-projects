@@ -19,6 +19,14 @@
 
 const PROJECTS = [
   {
+    name: "Word Hunt",
+    url: "word-hunt/",
+    description: "Trace words across a fresh toss of letter dice — 3×3 up to 6×6, timed or not.",
+    accent: "#e8962e",
+    icon: "letters",
+    status: "new",
+  },
+  {
     name: "Echo Tower",
     url: "echo-tower/",
     description: "A top-down puzzle game where stone statues echo your every move.",

@@ -4,19 +4,48 @@
     {
       "name": "landing-page",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8323"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8323"
+      ],
       "port": 8323
     },
     {
       "name": "echo-tower",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8321", "--directory", "echo-tower"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8321",
+        "--directory",
+        "echo-tower"
+      ],
       "port": 8321
     },
     {
       "name": "ofman-quadrant",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "ofman-quadrant/app", "--", "--port", "8322", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "ofman-quadrant/app",
+        "--",
+        "--port",
+        "8322",
+        "--strictPort"
+      ],
+      "port": 8322
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8322"
+      ],
       "port": 8322
     }
   ]
