@@ -17,6 +17,7 @@ import {
   readShareParams,
 } from "./logic.js";
 import { define, wiktionaryUrl } from "./define.js";
+import { createMusic } from "./music.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -66,7 +67,7 @@ const els = {
 
 const STORE_KEY = "word-hunt:settings";
 const THEMES = ["classic", "night", "sea", "forest", "berry", "contrast"];
-const settings = { size: 4, timer: 0, showCount: false, theme: "classic" };
+const settings = { size: 4, timer: 0, showCount: false, theme: "classic", music: false };
 try {
   Object.assign(settings, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
 } catch {
@@ -75,6 +76,7 @@ try {
 if (!SIZES.includes(settings.size)) settings.size = 4;
 if (![0, 1, 2, 3].includes(settings.timer)) settings.timer = 0;
 if (!THEMES.includes(settings.theme)) settings.theme = "classic";
+settings.music = settings.music === true;
 
 function saveSettings() {
   try {
@@ -83,6 +85,8 @@ function saveSettings() {
     /* ignore */
   }
 }
+
+const music = createMusic();
 
 // ------------------------------------------------------------------- state
 
@@ -699,6 +703,9 @@ function setUserPaused(on, peek = false) {
   els.play.classList.toggle("paused", on);
   els.play.classList.toggle("peek", on && peek);
   els.pauseCard.hidden = !on || peek;
+  // Music rests while the player has paused the game.
+  if (on) music.hold("paused");
+  else music.release("paused");
   // While blurred, keep the letters and words away from screen readers too.
   els.boardArea.querySelector(".board").inert = on && !peek;
   els.found.inert = on && !peek;
@@ -739,6 +746,8 @@ els.peek.addEventListener("click", () => {
 });
 
 document.addEventListener("visibilitychange", () => {
+  if (document.hidden) music.hold("hidden");
+  else music.release("hidden");
   if (document.hidden) pauseTimer();
   else if (!dialogOpen()) resumeTimer();
 });
@@ -1074,6 +1083,29 @@ $("btn-share").addEventListener("click", async () => {
     els.shareUrl.select();
   }
 });
+
+// ------------------------------------------------------------------ music
+
+const musicBtn = $("btn-music");
+
+function renderMusic() {
+  musicBtn.setAttribute("aria-pressed", settings.music ? "true" : "false");
+}
+
+if (music.available) {
+  musicBtn.hidden = false;
+  $("music-credit").hidden = false;
+  renderMusic();
+  // Left on last time: it starts at the first tap or key press.
+  if (settings.music) music.setOn(true);
+  musicBtn.addEventListener("click", () => {
+    settings.music = !settings.music;
+    saveSettings();
+    renderMusic();
+    music.setOn(settings.music);
+    announce(settings.music ? "Music on" : "Music off");
+  });
+}
 
 // ------------------------------------------------------------------ start
 
