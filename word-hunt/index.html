@@ -7,6 +7,12 @@
   <meta name="description" content="Trace words across a fresh toss of letter dice. A Sketchplanations experiment." />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#ffffff" />
+  <!-- Added to a phone's home screen, it opens without browser bars. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Word Hunt" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='8' y='8' width='84' height='84' rx='18' fill='%23fff6e6' stroke='%232e2b27' stroke-width='8'/><text x='50' y='70' font-size='56' font-family='sans-serif' font-weight='700' text-anchor='middle' fill='%232e2b27'>W</text></svg>" />
   <link rel="preload" href="words/words.txt" as="fetch" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -29,6 +35,10 @@
       </a>
       <h1>Word Hunt</h1>
       <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-fullscreen" aria-pressed="false" aria-label="Full screen" title="Full screen" hidden>
+          <svg class="fs-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" /></svg>
+          <svg class="fs-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" /></svg>
+        </button>
         <button type="button" class="icon-btn" id="btn-music" aria-pressed="false" aria-label="Music" title="Music on/off" hidden>
           <svg class="music-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.7 7.7 0 0 1 0 11" /></svg>
           <svg class="music-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path d="M16 9.5l5 5M21 9.5l-5 5" /></svg>
@@ -172,6 +182,21 @@
     <h2 id="share-title">Share this board</h2>
     <p>Copy this link and send it to someone. They'll get the same letters.</p>
     <input class="share-url" id="share-url" type="text" readonly aria-label="Link to this board" />
+  </dialog>
+
+  <dialog id="home-tip" aria-labelledby="home-tip-title">
+    <form method="dialog" class="dialog-close"><button class="icon-btn" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button></form>
+    <h2 id="home-tip-title">Play full screen</h2>
+    <p>This browser doesn't let web pages go full screen. You can add Word Hunt to your home screen instead:</p>
+    <ol class="rules">
+      <li>Tap the <strong>Share</strong> button
+        <svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11M8 7.5l4-4 4 4" /><path d="M8.5 10.5H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1.5" /></svg>
+        in the browser's toolbar or address bar.</li>
+      <li>Choose <strong>Add to Home Screen</strong>.</li>
+      <li>Open <strong>Word Hunt</strong> from your home screen. It fills the screen with no browser bars.</li>
+    </ol>
   </dialog>
 
   <dialog id="settings" aria-labelledby="settings-title">

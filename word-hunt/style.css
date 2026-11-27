@@ -321,11 +321,30 @@ svg .dot {
   margin-right: -8px;
 }
 
-/* Five header icons on a small phone: tighten them a little. */
+/* Up to six header icons on a small phone: tighten them a little. */
 @media (max-width: 400px) {
   .top-actions .icon-btn {
-    width: 40px;
+    width: 38px;
   }
+
+  .top h1 {
+    font-size: 1.55rem;
+  }
+}
+
+#btn-fullscreen .fs-exit,
+#btn-fullscreen[aria-pressed="true"] .fs-enter {
+  display: none;
+}
+
+#btn-fullscreen[aria-pressed="true"] .fs-exit {
+  display: block;
+}
+
+.inline-icon {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
 }
 
 #btn-music .music-on,

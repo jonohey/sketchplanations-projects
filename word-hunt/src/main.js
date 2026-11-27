@@ -52,6 +52,7 @@ const els = {
   settings: $("settings"),
   optCount: $("opt-count"),
   share: $("share"),
+  homeTip: $("home-tip"),
   shareUrl: $("share-url"),
   toast: $("toast"),
   themes: $("themes"),
@@ -567,7 +568,7 @@ els.board.addEventListener("keydown", (e) => {
 });
 
 function dialogOpen() {
-  return els.help.open || els.settings.open || els.share.open;
+  return els.help.open || els.settings.open || els.share.open || els.homeTip.open;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -835,7 +836,7 @@ function openDialog(d) {
   d.showModal();
 }
 
-for (const d of [els.help, els.settings, els.share]) {
+for (const d of [els.help, els.settings, els.share, els.homeTip]) {
   d.addEventListener("close", () => {
     if (!dialogOpen() && !document.hidden) resumeTimer();
   });
@@ -1106,6 +1107,50 @@ if (music.available) {
     announce(settings.music ? "Music on" : "Music off");
   });
 }
+
+// ------------------------------------------------------------- full screen
+
+const fsBtn = $("btn-fullscreen");
+const root = document.documentElement;
+const canFullscreen = Boolean(
+  (document.fullscreenEnabled || document.webkitFullscreenEnabled) &&
+    (root.requestFullscreen || root.webkitRequestFullscreen),
+);
+const fullscreenElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+// Already opened from the home screen, without browser bars.
+const standalone =
+  matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches ||
+  navigator.standalone === true;
+
+function renderFullscreen() {
+  const on = Boolean(fullscreenElement());
+  fsBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  fsBtn.title = on ? "Exit full screen" : "Full screen";
+}
+
+// Where pages can't go full screen (iPhone), the button explains the
+// home-screen route instead, unless we're already running from there.
+fsBtn.hidden = !canFullscreen && standalone;
+fsBtn.addEventListener("click", async () => {
+  if (!canFullscreen) {
+    openDialog(els.homeTip);
+    return;
+  }
+  try {
+    if (fullscreenElement()) {
+      await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+      await (root.requestFullscreen || root.webkitRequestFullscreen).call(root, {
+        navigationUI: "hide",
+      });
+    }
+  } catch {
+    toast("Full screen isn't available here");
+  }
+});
+document.addEventListener("fullscreenchange", renderFullscreen);
+document.addEventListener("webkitfullscreenchange", renderFullscreen);
+renderFullscreen();
 
 // ------------------------------------------------------------------ start
 
