@@ -95,6 +95,20 @@
     <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
+  <div class="define" id="define" popover role="dialog" aria-labelledby="define-word">
+    <div class="define-head">
+      <h2 id="define-word"></h2>
+      <button type="button" class="icon-btn" id="define-close" aria-label="Close definition">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </div>
+    <div class="define-body" id="define-body" aria-live="polite"></div>
+    <p class="define-credit">
+      <a id="define-link" href="https://en.wiktionary.org/" target="_blank" rel="noopener">More on Wiktionary</a>
+      <span aria-hidden="true">&middot;</span> CC BY-SA
+    </p>
+  </div>
+
   <dialog id="help" aria-labelledby="help-title">
     <form method="dialog" class="dialog-close"><button class="icon-btn" aria-label="Close">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
@@ -106,6 +120,7 @@
       <li>Words need <strong>3 or more letters</strong>. <strong>Qu</strong> sits on one tile and counts as two letters.</li>
       <li>Slide back over the last letter to undo it.</li>
       <li>Names and slang are kept <span class="extra-sample">in blue</span> but don't score.</li>
+      <li><strong>Tap a found word</strong> to see what it means.</li>
     </ul>
     <h3>Scoring</h3>
     <table class="scoring">
@@ -117,7 +132,7 @@
     <p>Pick a grid from 3&times;3 to 6&times;6, and play untimed or against a 1, 2 or 3&nbsp;minute timer. <strong>Reroll</strong> tosses a fresh set of letters. The timer pauses while this box is open.</p>
     <h3>Keyboard</h3>
     <p>Type a word and press <kbd>Enter</kbd>. Or <kbd>Tab</kbd> to the grid, move with arrow keys, pick letters with <kbd>Space</kbd> and press it again on the last letter to play. <kbd>Backspace</kbd> undoes a letter, <kbd>Esc</kbd> clears.</p>
-    <p class="credit">Words from the public-domain ENABLE list; names from Webster's Second. A <a href="https://sketchplanations.com">Sketchplanations</a> experiment.</p>
+    <p class="credit">Words from the public-domain ENABLE list; names from Webster's Second; definitions from <a href="https://en.wiktionary.org/">Wiktionary</a> (CC BY-SA). A <a href="https://sketchplanations.com">Sketchplanations</a> experiment.</p>
   </dialog>
 
   <dialog id="settings" aria-labelledby="settings-title">

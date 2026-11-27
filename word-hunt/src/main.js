@@ -14,6 +14,7 @@ import {
   findPath,
   solve,
 } from "./logic.js";
+import { define, wiktionaryUrl } from "./define.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -42,6 +43,11 @@ const els = {
   help: $("help"),
   settings: $("settings"),
   optCount: $("opt-count"),
+  define: $("define"),
+  defineWord: $("define-word"),
+  defineBody: $("define-body"),
+  defineLink: $("define-link"),
+  defineClose: $("define-close"),
 };
 
 // ---------------------------------------------------------------- settings
@@ -135,6 +141,7 @@ function newBoard(size) {
 
 function newGame() {
   cancelInput();
+  closeDefinition();
   const size = settings.size;
   const { tiles, solution } = newBoard(size);
   Object.assign(game, { size, tiles, solution, found: new Map(), score: 0, over: false });
@@ -253,19 +260,32 @@ function renderTally() {
   els.reveal.hidden = !settings.showCount || game.over;
 }
 
-function addChip(word, entry) {
+/** A word chip: a button that opens the word's definition. */
+function makeChip(display) {
   const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "chip";
+  b.dataset.word = display;
+  b.setAttribute("aria-haspopup", "dialog");
   const w = document.createElement("span");
-  w.textContent = entry.display;
-  li.append(w);
+  w.textContent = display;
+  b.append(w);
+  li.append(b);
+  return li;
+}
+
+function addChip(word, entry) {
+  const li = makeChip(entry.display);
+  const b = li.firstChild;
   if (entry.kind === "word") {
     const pts = document.createElement("span");
     pts.className = "pts";
     pts.innerHTML = `${entry.points}<span class="sr-only"> ${entry.points === 1 ? "point" : "points"}</span>`;
-    li.append(pts);
+    b.append(pts);
     els.words.append(li);
   } else {
-    li.title = entry.kind === "name" ? "Proper noun — no points" : "Slang — no points";
+    b.title = entry.kind === "name" ? "Proper noun — no points" : "Slang — no points";
     els.extras.append(li);
     els.extrasGroup.hidden = false;
   }
@@ -509,6 +529,13 @@ function dialogOpen() {
 
 document.addEventListener("keydown", (e) => {
   if (dialogOpen() || e.metaKey || e.ctrlKey || e.altKey || game.over) return;
+  if (definitionOpen()) {
+    if (!hasPopover && e.key === "Escape") {
+      closeDefinition();
+      onDefinitionClosed();
+    }
+    return;
+  }
   const key = e.key;
 
   if (/^[a-zA-Z]$/.test(key)) {
@@ -638,11 +665,7 @@ function renderMissed() {
   const missed = game.solution.filter((w) => !game.found.has(w));
   els.missedLabel.textContent = missed.length ? `Missed (${missed.length})` : "You found them all!";
   const frag = document.createDocumentFragment();
-  for (const w of missed) {
-    const li = document.createElement("li");
-    li.textContent = w;
-    frag.append(li);
-  }
+  for (const w of missed) frag.append(makeChip(w));
   els.missed.replaceChildren(frag);
   els.missedGroup.hidden = false;
   els.empty.hidden = true;
@@ -680,6 +703,7 @@ els.optCount.addEventListener("change", () => {
 
 function openDialog(d) {
   cancelInput();
+  closeDefinition();
   pauseTimer();
   d.showModal();
 }
@@ -700,6 +724,158 @@ for (const d of [els.help, els.settings]) {
 
 $("btn-help").addEventListener("click", () => openDialog(els.help));
 $("btn-settings").addEventListener("click", () => openDialog(els.settings));
+
+// ------------------------------------------------------------ definitions
+
+const hasPopover = typeof HTMLElement.prototype.showPopover === "function";
+let defineFor = null; // the chip button whose definition is showing
+let pressedOpenChip = null; // chip whose definition was open when pressed
+
+function definitionOpen() {
+  return hasPopover ? els.define.matches(":popover-open") : els.define.classList.contains("open");
+}
+
+function placeDefinition(chip) {
+  const pop = els.define;
+  const r = chip.getBoundingClientRect();
+  const vw = document.documentElement.clientWidth;
+  const vh = window.innerHeight;
+  const w = pop.offsetWidth;
+  const h = pop.offsetHeight;
+  const left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), vw - w - 8);
+  // Prefer above the word (the list sits low on the screen), else below.
+  let top = r.top - h - 8;
+  if (top < 8) top = Math.min(r.bottom + 8, vh - h - 8);
+  pop.style.left = `${Math.round(left)}px`;
+  pop.style.top = `${Math.round(Math.max(8, top))}px`;
+}
+
+function renderSenses(container, senses) {
+  const ol = document.createElement("ol");
+  for (const s of senses) {
+    const li = document.createElement("li");
+    const pos = document.createElement("i");
+    pos.className = "pos";
+    pos.textContent = s.pos;
+    li.append(pos, " ", s.text);
+    ol.append(li);
+  }
+  container.append(ol);
+}
+
+function setDefinitionBody(nodes) {
+  els.defineBody.replaceChildren(...nodes);
+  if (defineFor) placeDefinition(defineFor);
+}
+
+function para(text, cls) {
+  const p = document.createElement("p");
+  if (cls) p.className = cls;
+  p.textContent = text;
+  return p;
+}
+
+async function openDefinition(chip) {
+  const word = chip.dataset.word;
+  if (defineFor === chip) {
+    // Open: close it. Already closed by light-dismiss (its toggle event
+    // hasn't run yet): leave it closed.
+    closeDefinition();
+    return;
+  }
+  // Tapping the open word: light-dismiss has already closed it.
+  if (pressedOpenChip === chip) {
+    pressedOpenChip = null;
+    return;
+  }
+  defineFor = chip;
+  els.defineWord.textContent = word;
+  els.defineLink.href = wiktionaryUrl(word);
+  els.defineBody.replaceChildren(para("Looking it up…", "define-note"));
+  chip.setAttribute("aria-expanded", "true");
+  if (hasPopover) {
+    if (!definitionOpen()) els.define.showPopover();
+  } else {
+    els.define.classList.add("open");
+  }
+  placeDefinition(chip);
+  els.defineClose.focus({ preventScroll: true });
+
+  try {
+    const { senses, base } = await define(word);
+    if (defineFor !== chip) return; // another word was opened meanwhile
+    if (!senses.length) {
+      setDefinitionBody([para("No definition found. Try the full entry below.", "define-note")]);
+      return;
+    }
+    const frag = document.createElement("div");
+    renderSenses(frag, senses);
+    if (base) {
+      const h = document.createElement("h3");
+      h.textContent = base.word;
+      frag.append(h);
+      renderSenses(frag, base.senses);
+    }
+    setDefinitionBody([frag]);
+  } catch (err) {
+    console.warn(err);
+    if (defineFor !== chip) return;
+    setDefinitionBody([para("Couldn't reach Wiktionary. Check your connection.", "define-note")]);
+  }
+}
+
+function closeDefinition() {
+  if (!defineFor) return;
+  if (hasPopover && definitionOpen()) els.define.hidePopover();
+  else els.define.classList.remove("open");
+}
+
+// The popover may also close itself (tap outside, Esc): tidy up either way.
+function onDefinitionClosed() {
+  const chip = defineFor;
+  defineFor = null;
+  if (!chip) return;
+
+  chip.setAttribute("aria-expanded", "false");
+  if (els.define.contains(document.activeElement) && chip.isConnected) {
+    chip.focus({ preventScroll: true });
+  }
+}
+
+if (hasPopover) {
+  els.define.addEventListener("toggle", (e) => {
+    if (e.newState === "closed") onDefinitionClosed();
+  });
+} else {
+  els.define.removeAttribute("popover");
+  document.addEventListener("pointerdown", (e) => {
+    if (definitionOpen() && !els.define.contains(e.target) && !e.target.closest?.(".chip")) {
+      closeDefinition();
+      onDefinitionClosed();
+    }
+  });
+}
+
+els.defineClose.addEventListener("click", () => {
+  closeDefinition();
+  if (!hasPopover) onDefinitionClosed();
+});
+
+// Note before light-dismiss runs whether the pressed word was already open.
+els.found.addEventListener("pointerdown", (e) => {
+  const chip = e.target.closest(".chip");
+  pressedOpenChip = chip && chip === defineFor && definitionOpen() ? chip : null;
+});
+
+els.found.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (chip) openDefinition(chip);
+});
+
+window.addEventListener("resize", () => {
+  if (defineFor && definitionOpen()) placeDefinition(defineFor);
+});
+els.found.addEventListener("scroll", () => closeDefinition(), { passive: true });
 
 // ------------------------------------------------------------------ start
 
