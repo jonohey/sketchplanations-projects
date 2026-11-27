@@ -62,7 +62,10 @@
     <main class="play">
       <div class="status">
         <p class="current" id="current" aria-hidden="true"></p>
-        <p class="clock" id="clock" hidden><span class="sr-only">Time left </span><span id="clock-text">0:00</span></p>
+        <button type="button" class="clock" id="clock" hidden aria-pressed="false">
+          <span class="sr-only">Pause timer. Time left </span><span id="clock-text">0:00</span>
+          <svg class="clock-pause" viewBox="0 0 24 24" aria-hidden="true"><rect class="dot" x="6" y="5" width="4" height="14" rx="1.2" /><rect class="dot" x="14" y="5" width="4" height="14" rx="1.2" /></svg>
+        </button>
       </div>
 
       <div class="board-area">
@@ -70,6 +73,17 @@
           <svg class="trail" id="trail" aria-hidden="true" focusable="false">
             <polyline id="trail-line" points="" />
           </svg>
+        </div>
+        <div class="pause-card" id="pause-card" role="group" aria-labelledby="pause-title" hidden>
+          <p class="pause-title" id="pause-title">No peeking!</p>
+          <p class="pause-sub">The timer is paused.</p>
+          <div class="pause-actions">
+            <button type="button" class="btn primary" id="btn-resume">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="dot" d="M8 5.5v13l10.5-6.5z" /></svg>
+              Resume
+            </button>
+            <button type="button" class="btn" id="btn-peek">Show board</button>
+          </div>
         </div>
       </div>
 
@@ -136,7 +150,7 @@
       <tbody><tr><th scope="row">Points</th><td>1</td><td>1</td><td>2</td><td>3</td><td>5</td><td>11</td></tr></tbody>
     </table>
     <h3>Options</h3>
-    <p>Pick a grid from 3&times;3 to 6&times;6, and play untimed or against a 1, 2 or 3&nbsp;minute timer. <strong>Reroll</strong> tosses a fresh set of letters. The timer pauses while this box is open. <strong>Settings</strong> has six colour schemes, all high contrast, including a dark one.</p>
+    <p>Pick a grid from 3&times;3 to 6&times;6, and play untimed or against a 1, 2 or 3&nbsp;minute timer. <strong>Reroll</strong> tosses a fresh set of letters. Tap the timer to pause (the board hides until you resume, or choose Show board) and tap it again to carry on. The timer also pauses while this box is open. <strong>Settings</strong> has six colour schemes, all high contrast, including a dark one.</p>
     <h3>Keyboard</h3>
     <p>Type a word and press <kbd>Enter</kbd>. Or <kbd>Tab</kbd> to the grid, move with arrow keys, pick letters with <kbd>Space</kbd> and press it again on the last letter to play. <kbd>Backspace</kbd> undoes a letter, <kbd>Esc</kbd> clears.</p>
     <p class="credit">Words from the public-domain ENABLE list; names from Webster's Second; definitions from <a href="https://en.wiktionary.org/">Wiktionary</a> (CC BY-SA). A <a href="https://sketchplanations.com">Sketchplanations</a> experiment.</p>
