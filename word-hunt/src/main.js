@@ -13,6 +13,8 @@ import {
   pathWord,
   findPath,
   solve,
+  shareParams,
+  readShareParams,
 } from "./logic.js";
 import { define, wiktionaryUrl } from "./define.js";
 
@@ -48,6 +50,9 @@ const els = {
   help: $("help"),
   settings: $("settings"),
   optCount: $("opt-count"),
+  share: $("share"),
+  shareUrl: $("share-url"),
+  toast: $("toast"),
   themes: $("themes"),
   themeColor: document.querySelector('meta[name="theme-color"]'),
   define: $("define"),
@@ -92,6 +97,8 @@ const game = {
   found: new Map(), // word -> { kind, display, points, el }
   score: 0,
   over: false,
+  target: null, // points to beat, when playing a friend's shared board
+  beaten: false,
 };
 
 const input = {
@@ -148,12 +155,25 @@ function newBoard(size) {
   return { tiles, solution: dict ? solve(tiles, size, dict) : null };
 }
 
-function newGame() {
+/** Start a game: a fresh toss, or the board from a share link. */
+function newGame(shared = null) {
   cancelInput();
   closeDefinition();
-  const size = settings.size;
-  const { tiles, solution } = newBoard(size);
-  Object.assign(game, { size, tiles, solution, found: new Map(), score: 0, over: false });
+  if (!shared) clearShareLink();
+  const size = shared ? shared.size : settings.size;
+  const { tiles, solution } = shared
+    ? { tiles: shared.tiles, solution: dict ? solve(shared.tiles, size, dict) : null }
+    : newBoard(size);
+  Object.assign(game, {
+    size,
+    tiles,
+    solution,
+    found: new Map(),
+    score: 0,
+    over: false,
+    target: shared?.target ?? null,
+    beaten: false,
+  });
   pending.length = 0;
 
   buildBoard();
@@ -266,6 +286,12 @@ function renderTally() {
   els.count.textContent = showTotal
     ? `${scoring} of ${plural(game.solution.length, "word")}`
     : plural(scoring, "word");
+  if (game.target !== null) {
+    const t = document.createElement("span");
+    t.className = "target" + (game.beaten ? " beaten" : "");
+    t.textContent = game.beaten ? `Beat ${game.target}!` : `${game.target} to beat`;
+    els.count.append(" · ", t);
+  }
   els.reveal.hidden = !settings.showCount || game.over;
 }
 
@@ -357,6 +383,10 @@ function play(path) {
   game.found.set(word, entry);
   game.score += points;
   addChip(word, entry);
+  if (game.target !== null && !game.beaten && game.score > game.target) {
+    game.beaten = true;
+    toast(`You beat ${plural(game.target, "point")}!`);
+  }
   renderTally();
 
   if (kind === "word") {
@@ -533,7 +563,7 @@ els.board.addEventListener("keydown", (e) => {
 });
 
 function dialogOpen() {
-  return els.help.open || els.settings.open;
+  return els.help.open || els.settings.open || els.share.open;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -796,7 +826,7 @@ function openDialog(d) {
   d.showModal();
 }
 
-for (const d of [els.help, els.settings]) {
+for (const d of [els.help, els.settings, els.share]) {
   d.addEventListener("close", () => {
     if (!dialogOpen() && !document.hidden) resumeTimer();
   });
@@ -965,9 +995,104 @@ window.addEventListener("resize", () => {
 });
 els.found.addEventListener("scroll", () => closeDefinition(), { passive: true });
 
+// ---------------------------------------------------------------- sharing
+
+const SHARE_PARAMS = ["b", "t", "s"];
+
+/** Link to this board with the current timer and, once you've scored,
+ *  your points as the score to beat. */
+function shareLink() {
+  const url = new URL(location.pathname, location.origin);
+  url.search = shareParams(game.tiles, game.size, settings.timer, game.score);
+  return url.href;
+}
+
+/** A fresh toss is no longer the shared board, so drop it from the address. */
+function clearShareLink() {
+  const url = new URL(location.href);
+  if (!SHARE_PARAMS.some((p) => url.searchParams.has(p))) return;
+  SHARE_PARAMS.forEach((p) => url.searchParams.delete(p));
+  history.replaceState(null, "", url.pathname + url.search + url.hash);
+}
+
+/** The board in this page's address, if it was opened from a share link. */
+function readShareLink() {
+  const link = readShareParams(location.search);
+  if (link.board) link.board.target = link.target;
+  return link;
+}
+
+let toastTimer = 0;
+function toast(text) {
+  clearTimeout(toastTimer);
+  els.toast.textContent = text;
+  els.toast.classList.add("show");
+  toastTimer = setTimeout(() => {
+    els.toast.classList.remove("show");
+    setTimeout(() => (els.toast.textContent = ""), 250);
+  }, 2600);
+}
+
+/** Older copy route, for browsers that block the async clipboard API. */
+function legacyCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;opacity:0;pointer-events:none";
+  document.body.append(ta);
+  ta.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  ta.remove();
+  return ok;
+}
+
+$("btn-share").addEventListener("click", async () => {
+  const link = shareLink();
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(link);
+    copied = true;
+  } catch {
+    copied = legacyCopy(link);
+  }
+  if (copied) {
+    toast(
+      game.score > 0
+        ? `Link copied, with ${plural(game.score, "point")} to beat!`
+        : "Link copied. Send it to a friend!",
+    );
+  } else {
+    // No clipboard access (old browser, or blocked): show the link to copy.
+    els.shareUrl.value = link;
+    openDialog(els.share);
+    els.shareUrl.focus();
+    els.shareUrl.select();
+  }
+});
+
 // ------------------------------------------------------------------ start
 
 applyTheme();
+const fromLink = readShareLink();
+if (fromLink.board) {
+  // Play the shared board at its size and timer, without saving them as
+  // this player's own preferences.
+  settings.size = fromLink.board.size;
+  settings.timer = fromLink.timer;
+}
 syncControls();
-newGame();
+newGame(fromLink.board);
+if (fromLink.board) {
+  const target = fromLink.board.target;
+  showMessage(target ? `${plural(target, "point")} to beat!` : "Shared board. Good luck!", "muted");
+  announce(target ? `Shared board. ${plural(target, "point")} to beat.` : "Shared board. Good luck!");
+} else if (fromLink.invalid) {
+  clearShareLink();
+  showMessage("That link didn't work. New board!", "bad");
+}
 loadDictionary();

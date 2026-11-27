@@ -223,3 +223,69 @@ export function solve(tiles, size, dict) {
 
 /** Minimum number of findable words for a board to feel worth playing. */
 export const MIN_WORDS_ON_BOARD = { 3: 12, 4: 45, 5: 120, 6: 220 };
+
+// ---------------------------------------------------------------- sharing
+// A board travels in a link as one size digit plus one letter per tile
+// ("q" is the Qu tile). Letters are shifted by position so the link doesn't
+// spell out the board at a glance: "4abcd..." isn't the top row.
+
+const A = 97;
+
+function shiftFor(i) {
+  return (i * 7 + 11) % 26;
+}
+
+/** Board → compact code for a share link, e.g. "4kxbq...". */
+export function encodeBoard(tiles, size) {
+  let out = String(size);
+  tiles.forEach((t, i) => {
+    const c = t.charCodeAt(0) - A; // "qu" → q
+    out += String.fromCharCode(A + ((c + shiftFor(i)) % 26));
+  });
+  return out;
+}
+
+/** Share code → { size, tiles }, or null if it isn't a valid board. */
+export function decodeBoard(code) {
+  if (typeof code !== "string") return null;
+  const m = /^([3-6])([a-z]+)$/i.exec(code.trim());
+  if (!m) return null;
+  const size = Number(m[1]);
+  const letters = m[2].toLowerCase();
+  if (letters.length !== size * size) return null;
+  const tiles = [...letters].map((ch, i) => {
+    const c = (ch.charCodeAt(0) - A - shiftFor(i) + 26 * 2) % 26;
+    const letter = String.fromCharCode(A + c);
+    return letter === "q" ? "qu" : letter;
+  });
+  return { size, tiles };
+}
+
+/** Query string for a share link: board, timer minutes and score to beat. */
+export function shareParams(tiles, size, timer, score) {
+  const p = new URLSearchParams();
+  p.set("b", encodeBoard(tiles, size));
+  p.set("t", String(timer));
+  if (score > 0) p.set("s", String(score));
+  return p.toString();
+}
+
+/**
+ * Read a share link's query string. Returns { board: null } when there's no
+ * board in it, { board: null, invalid: true } for a broken one, otherwise
+ * { board, timer, target } (target is null when no score came with it).
+ */
+export function readShareParams(search) {
+  const p = new URLSearchParams(search);
+  if (!p.has("b")) return { board: null, invalid: false };
+  const board = decodeBoard(p.get("b"));
+  if (!board) return { board: null, invalid: true };
+  const t = Number(p.get("t"));
+  const s = p.get("s");
+  return {
+    board,
+    invalid: false,
+    timer: [0, 1, 2, 3].includes(t) ? t : 0,
+    target: s && /^\d{1,4}$/.test(s) && Number(s) > 0 ? Number(s) : null,
+  };
+}
