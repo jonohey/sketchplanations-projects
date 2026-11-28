@@ -1,8 +1,8 @@
 // Word Hunt — UI: board rendering, drag/keyboard input, timer, word lists.
 import {
   SIZES,
-  MIN_WORD,
-  MIN_WORDS_ON_BOARD,
+  DEFAULT_MIN_WORD,
+  minWordsOnBoard,
   rollBoard,
   hasGoodVowelMix,
   isAdjacent,
@@ -51,6 +51,7 @@ const els = {
   help: $("help"),
   settings: $("settings"),
   optCount: $("opt-count"),
+  optThree: $("opt-three"),
   share: $("share"),
   homeTip: $("home-tip"),
   shareUrl: $("share-url"),
@@ -68,7 +69,14 @@ const els = {
 
 const STORE_KEY = "word-hunt:settings";
 const THEMES = ["classic", "night", "sea", "forest", "berry", "contrast"];
-const settings = { size: 4, timer: 0, showCount: false, theme: "classic", music: false };
+const settings = {
+  size: 4,
+  timer: 0,
+  showCount: false,
+  theme: "classic",
+  music: false,
+  allowThree: false, // count 3-letter words (off: 4+ letters only)
+};
 try {
   Object.assign(settings, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
 } catch {
@@ -78,6 +86,9 @@ if (!SIZES.includes(settings.size)) settings.size = 4;
 if (![0, 1, 2, 3].includes(settings.timer)) settings.timer = 0;
 if (!THEMES.includes(settings.theme)) settings.theme = "classic";
 settings.music = settings.music === true;
+settings.allowThree = settings.allowThree === true;
+
+const minWordSetting = () => (settings.allowThree ? 3 : DEFAULT_MIN_WORD);
 
 function saveSettings() {
   try {
@@ -102,6 +113,7 @@ const game = {
   found: new Map(), // word -> { kind, display, points, el }
   score: 0,
   over: false,
+  minWord: DEFAULT_MIN_WORD, // shortest word that counts in this game
   target: null, // points to beat, when playing a friend's shared board
   beaten: false,
 };
@@ -140,24 +152,24 @@ async function loadDictionary() {
     showMessage("Couldn't load the word list — check your connection and reload.", "bad");
     return;
   }
-  game.solution = solve(game.tiles, game.size, dict);
+  game.solution = solve(game.tiles, game.size, dict, game.minWord);
   renderTally();
   for (const p of pending.splice(0)) play(p);
 }
 
 // ------------------------------------------------------------- new games
 
-function newBoard(size) {
+function newBoard(size, minLen) {
   // With the dictionary loaded, toss again until the board has enough words.
   for (let attempt = 0; attempt < 40; attempt++) {
     const tiles = rollBoard(size);
     if (!hasGoodVowelMix(tiles)) continue;
     if (!dict) return { tiles, solution: null };
-    const solution = solve(tiles, size, dict);
-    if (solution.length >= MIN_WORDS_ON_BOARD[size]) return { tiles, solution };
+    const solution = solve(tiles, size, dict, minLen);
+    if (solution.length >= minWordsOnBoard(size, minLen)) return { tiles, solution };
   }
   const tiles = rollBoard(size);
-  return { tiles, solution: dict ? solve(tiles, size, dict) : null };
+  return { tiles, solution: dict ? solve(tiles, size, dict, minLen) : null };
 }
 
 /** Start a game: a fresh toss, or the board from a share link. */
@@ -166,11 +178,13 @@ function newGame(shared = null) {
   closeDefinition();
   if (!shared) clearShareLink();
   const size = shared ? shared.size : settings.size;
+  const minWord = shared ? shared.minWord : minWordSetting();
   const { tiles, solution } = shared
-    ? { tiles: shared.tiles, solution: dict ? solve(shared.tiles, size, dict) : null }
-    : newBoard(size);
+    ? { tiles: shared.tiles, solution: dict ? solve(shared.tiles, size, dict, minWord) : null }
+    : newBoard(size, minWord);
   Object.assign(game, {
     size,
+    minWord,
     tiles,
     solution,
     found: new Map(),
@@ -354,9 +368,10 @@ function play(path) {
   if (game.over || !path.length) return;
   const word = pathWord(game.tiles, path);
 
-  if (word.length < MIN_WORD) {
-    if (path.length > 1) flash(path, "bad", "Too short — 3+ letters", "Too short");
-    else clearPath();
+  if (word.length < game.minWord) {
+    if (path.length > 1) {
+      flash(path, "bad", `Too short: ${game.minWord}+ letters`, `Too short, ${game.minWord} or more letters`);
+    } else clearPath();
     return;
   }
   if (!dict) {
@@ -798,6 +813,7 @@ function syncControls() {
   els.controls.elements.size.value = String(settings.size);
   els.controls.elements.timer.value = String(settings.timer);
   els.optCount.checked = settings.showCount;
+  els.optThree.checked = settings.allowThree;
 }
 
 els.controls.addEventListener("change", (e) => {
@@ -820,6 +836,13 @@ els.themes.addEventListener("change", (e) => {
   applyTheme();
 });
 els.themes.addEventListener("submit", (e) => e.preventDefault());
+
+els.optThree.addEventListener("change", () => {
+  settings.allowThree = els.optThree.checked;
+  saveSettings();
+  newGame(); // the rules changed, so start a fresh board under them
+  toast(settings.allowThree ? "New board: 3-letter words count" : "New board: 4+ letter words only");
+});
 
 els.optCount.addEventListener("change", () => {
   settings.showCount = els.optCount.checked;
@@ -1013,7 +1036,7 @@ const SHARE_PARAMS = ["b", "t", "s"];
  *  your points as the score to beat. */
 function shareLink() {
   const url = new URL(location.pathname, location.origin);
-  url.search = shareParams(game.tiles, game.size, settings.timer, game.score);
+  url.search = shareParams(game.tiles, game.size, settings.timer, game.score, game.minWord);
   return url.href;
 }
 
@@ -1028,7 +1051,10 @@ function clearShareLink() {
 /** The board in this page's address, if it was opened from a share link. */
 function readShareLink() {
   const link = readShareParams(location.search);
-  if (link.board) link.board.target = link.target;
+  if (link.board) {
+    link.board.target = link.target;
+    link.board.minWord = link.minWord;
+  }
   return link;
 }
 
@@ -1161,6 +1187,7 @@ if (fromLink.board) {
   // this player's own preferences.
   settings.size = fromLink.board.size;
   settings.timer = fromLink.timer;
+  settings.allowThree = fromLink.minWord === 3;
 }
 syncControls();
 newGame(fromLink.board);

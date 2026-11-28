@@ -20,6 +20,7 @@ import {
   decodeBoard,
   shareParams,
   readShareParams,
+  minWordsOnBoard,
 } from "../src/logic.js";
 
 const tiny = makeDictionary(["cat", "cats", "coat", "quit", "quite", "tac"], ["Paris", "yeet"]);
@@ -129,8 +130,14 @@ test("bad share codes are rejected", () => {
 
 test("share links carry the timer and the score to beat", () => {
   const tiles = rollBoard(4);
-  const q = shareParams(tiles, 4, 2, 23);
-  assert.deepEqual(readShareParams("?" + q), { board: { size: 4, tiles }, invalid: false, timer: 2, target: 23 });
+  const q = shareParams(tiles, 4, 2, 23, 3);
+  assert.deepEqual(readShareParams("?" + q), {
+    board: { size: 4, tiles },
+    invalid: false,
+    timer: 2,
+    minWord: 3,
+    target: 23,
+  });
 
   const untimed = readShareParams("?" + shareParams(tiles, 4, 0, 0));
   assert.equal(untimed.timer, 0);
@@ -146,4 +153,20 @@ test("share link params are checked", () => {
   assert.equal(readShareParams(`?b=${b}&s=-4`).target, null);
   assert.equal(readShareParams(`?b=${b}&s=12345`).target, null);
   assert.equal(readShareParams(`?b=${b}&s=abc`).target, null);
+});
+
+test("share links carry the shortest word length", () => {
+  const tiles = rollBoard(4);
+  assert.equal(readShareParams("?" + shareParams(tiles, 4, 0, 0, 4)).minWord, 4);
+  assert.equal(readShareParams("?" + shareParams(tiles, 4, 0, 0)).minWord, 4, "defaults to 4+");
+  assert.equal(readShareParams("?" + shareParams(tiles, 4, 0, 0, 3)).minWord, 3);
+  // Links made before the option existed always counted 3-letter words.
+  assert.equal(readShareParams(`?b=${encodeBoard(tiles, 4)}&t=0`).minWord, 3);
+  assert.equal(readShareParams(`?b=${encodeBoard(tiles, 4)}&m=7`).minWord, 3);
+});
+
+test("the solver can leave out 3-letter words", () => {
+  const sorted = { ...tiny, words: tiny.words.slice().sort() };
+  assert.deepEqual(solve(board, 3, sorted, 4).sort(), ["quit", "quite"]);
+  assert.ok(minWordsOnBoard(4, 4) < minWordsOnBoard(4, 3));
 });

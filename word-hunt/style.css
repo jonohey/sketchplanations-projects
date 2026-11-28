@@ -1244,6 +1244,10 @@ kbd {
   accent-color: var(--accent-ink);
 }
 
+.toggle + .toggle {
+  margin-top: 14px;
+}
+
 .toggle-desc {
   display: block;
   margin-top: 2px;
