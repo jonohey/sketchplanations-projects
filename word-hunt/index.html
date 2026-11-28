@@ -156,7 +156,7 @@
     <ul class="rules">
       <li><strong>Drag</strong> across touching letters to spell a word &mdash; up, down, sideways or diagonally. Let go to play it.</li>
       <li>Each letter tile can be used <strong>once</strong> per word, and you can't skip over tiles.</li>
-      <li>Words need <strong>3 or more letters</strong>. <strong>Qu</strong> sits on one tile and counts as two letters.</li>
+      <li>Words need <strong>4 or more letters</strong>, or 3 if you turn on <strong>3-letter words</strong> in Settings. <strong>Qu</strong> sits on one tile and counts as two letters.</li>
       <li>Slide back over the last letter to undo it.</li>
       <li>Names and slang are kept <span class="extra-sample">in blue</span> but don't score.</li>
       <li><strong>Tap a found word</strong> to see what it means.</li>
@@ -197,6 +197,15 @@
       <li>Choose <strong>Add to Home Screen</strong>.</li>
       <li>Open <strong>Word Hunt</strong> from your home screen. It fills the screen with no browser bars.</li>
     </ol>
+  </dialog>
+
+  <dialog id="confirm-new" class="confirm" aria-labelledby="confirm-new-title" aria-describedby="confirm-new-desc">
+    <h2 id="confirm-new-title">Start a new board?</h2>
+    <p id="confirm-new-desc">This game will end and you'll get fresh letters.</p>
+    <form method="dialog" class="confirm-actions">
+      <button class="btn" value="keep" autofocus>Keep playing</button>
+      <button class="btn primary" value="new">New board</button>
+    </form>
   </dialog>
 
   <dialog id="settings" aria-labelledby="settings-title">
@@ -241,6 +250,13 @@
         </div>
       </fieldset>
     </form>
+    <label class="toggle">
+      <input type="checkbox" id="opt-three" />
+      <span>
+        <strong>3-letter words</strong>
+        <span class="toggle-desc">Count words like CAT and SUN (1 point each). Off means 4 letters or more. Changing this starts a new board.</span>
+      </span>
+    </label>
     <label class="toggle">
       <input type="checkbox" id="opt-count" />
       <span>

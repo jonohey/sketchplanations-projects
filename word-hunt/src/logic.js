@@ -14,7 +14,8 @@ export const DICE = [
 ];
 
 export const SIZES = [3, 4, 5, 6];
-export const MIN_WORD = 3;
+export const MIN_WORD = 3; // shortest word the game can ever accept
+export const DEFAULT_MIN_WORD = 4; // 3-letter words are an option in Settings
 
 const VOWELS = new Set(["a", "e", "i", "o", "u"]);
 
@@ -201,8 +202,9 @@ export function findPath(tiles, size, word, prefer = null) {
   return null;
 }
 
-/** Every scoring word on the board, sorted longest first then A–Z. */
-export function solve(tiles, size, dict) {
+/** Every scoring word on the board of at least `minLen` letters, sorted
+ *  longest first then A–Z. */
+export function solve(tiles, size, dict, minLen = MIN_WORD) {
   const adj = neighbours(size);
   const used = new Uint8Array(tiles.length);
   const found = new Set();
@@ -211,7 +213,7 @@ export function solve(tiles, size, dict) {
   const dfs = (cell, prefix) => {
     const w = prefix + tiles[cell];
     if (!hasPrefix(words, w)) return;
-    if (w.length >= MIN_WORD && set.has(w)) found.add(w);
+    if (w.length >= minLen && set.has(w)) found.add(w);
     used[cell] = 1;
     for (const n of adj[cell]) if (!used[n]) dfs(n, w);
     used[cell] = 0;
@@ -221,8 +223,16 @@ export function solve(tiles, size, dict) {
   return [...found].sort((a, b) => b.length - a.length || (a < b ? -1 : 1));
 }
 
-/** Minimum number of findable words for a board to feel worth playing. */
-export const MIN_WORDS_ON_BOARD = { 3: 12, 4: 45, 5: 120, 6: 220 };
+/** Minimum number of findable words for a board to feel worth playing,
+ *  by grid size, set near the 10th percentile of random tosses. */
+const MIN_WORDS_ON_BOARD = {
+  3: { 3: 12, 4: 45, 5: 120, 6: 220 }, // 3-letter words allowed
+  4: { 3: 6, 4: 28, 5: 80, 6: 160 }, // 4+ letters only
+};
+
+export function minWordsOnBoard(size, minLen = DEFAULT_MIN_WORD) {
+  return MIN_WORDS_ON_BOARD[minLen === 3 ? 3 : 4][size];
+}
 
 // ---------------------------------------------------------------- sharing
 // A board travels in a link as one size digit plus one letter per tile
@@ -261,11 +271,13 @@ export function decodeBoard(code) {
   return { size, tiles };
 }
 
-/** Query string for a share link: board, timer minutes and score to beat. */
-export function shareParams(tiles, size, timer, score) {
+/** Query string for a share link: board, timer minutes, shortest word
+ *  length and score to beat. */
+export function shareParams(tiles, size, timer, score, minLen = DEFAULT_MIN_WORD) {
   const p = new URLSearchParams();
   p.set("b", encodeBoard(tiles, size));
   p.set("t", String(timer));
+  p.set("m", String(minLen));
   if (score > 0) p.set("s", String(score));
   return p.toString();
 }
@@ -273,7 +285,9 @@ export function shareParams(tiles, size, timer, score) {
 /**
  * Read a share link's query string. Returns { board: null } when there's no
  * board in it, { board: null, invalid: true } for a broken one, otherwise
- * { board, timer, target } (target is null when no score came with it).
+ * { board, timer, minWord, target } (target is null when no score came
+ * with it). Links from before the 3-letter option have no "m"; they were
+ * made when 3-letter words always counted, so they keep that rule.
  */
 export function readShareParams(search) {
   const p = new URLSearchParams(search);
@@ -282,10 +296,12 @@ export function readShareParams(search) {
   if (!board) return { board: null, invalid: true };
   const t = Number(p.get("t"));
   const s = p.get("s");
+  const m = p.get("m");
   return {
     board,
     invalid: false,
     timer: [0, 1, 2, 3].includes(t) ? t : 0,
+    minWord: m === "4" ? 4 : 3,
     target: s && /^\d{1,4}$/.test(s) && Number(s) > 0 ? Number(s) : null,
   };
 }

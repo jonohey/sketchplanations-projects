@@ -1025,6 +1025,25 @@ svg .dot {
   font-size: 0.95rem;
 }
 
+/* ---------- new board check ---------- */
+
+dialog.confirm {
+  width: min(340px, calc(100vw - 24px));
+  text-align: center;
+}
+
+dialog.confirm h2 {
+  margin: 0 0 6px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 /* ---------- dialogs ---------- */
 
 dialog {
@@ -1242,6 +1261,10 @@ kbd {
   height: 22px;
   margin: 2px 0 0;
   accent-color: var(--accent-ink);
+}
+
+.toggle + .toggle {
+  margin-top: 14px;
 }
 
 .toggle-desc {
