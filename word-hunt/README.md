@@ -22,6 +22,8 @@ Trace words across a fresh toss of letter dice. Drag through touching tiles
   (iPhone, and other iPad browsers if they don't offer it), the button
   explains Add to Home Screen; the manifest
   and icons in `icons/` make the home-screen version open without browser bars
+- Reroll, or changing the grid, timer or 3-letter rule, first asks "Start a
+  new board?" (Keep playing / New board), except once a game has finished
 - Words need 4+ letters by default; Settings can allow 3-letter words.
   Share links carry this rule (`m=3` or `m=4`) along with the board
 - Optional (Settings): show how many words are on the board and reveal the

@@ -54,6 +54,7 @@ const els = {
   optThree: $("opt-three"),
   share: $("share"),
   homeTip: $("home-tip"),
+  confirmNew: $("confirm-new"),
   shareUrl: $("share-url"),
   toast: $("toast"),
   themes: $("themes"),
@@ -583,7 +584,9 @@ els.board.addEventListener("keydown", (e) => {
 });
 
 function dialogOpen() {
-  return els.help.open || els.settings.open || els.share.open || els.homeTip.open;
+  return (
+    els.help.open || els.settings.open || els.share.open || els.homeTip.open || els.confirmNew.open
+  );
 }
 
 document.addEventListener("keydown", (e) => {
@@ -816,17 +819,38 @@ function syncControls() {
   els.optThree.checked = settings.allowThree;
 }
 
-els.controls.addEventListener("change", (e) => {
+/**
+ * Check before anything replaces the board. Resolves true for "New board",
+ * false for "Keep playing" (or Esc, or a tap outside). A finished game has
+ * nothing to lose, so it doesn't ask.
+ */
+function confirmNewBoard() {
+  if (game.over) return Promise.resolve(true);
+  const d = els.confirmNew;
+  return new Promise((resolve) => {
+    d.returnValue = "";
+    d.addEventListener("close", () => resolve(d.returnValue === "new"), { once: true });
+    openDialog(d);
+  });
+}
+
+els.controls.addEventListener("change", async (e) => {
   const { name, value } = e.target;
+  if (name !== "size" && name !== "timer") return;
+  if (!(await confirmNewBoard())) {
+    syncControls(); // put the option back to what's being played
+    return;
+  }
   if (name === "size") settings.size = Number(value);
-  else if (name === "timer") settings.timer = Number(value);
-  else return;
+  else settings.timer = Number(value);
   saveSettings();
   newGame();
 });
 els.controls.addEventListener("submit", (e) => e.preventDefault());
 
-els.reroll.addEventListener("click", () => newGame());
+els.reroll.addEventListener("click", async () => {
+  if (await confirmNewBoard()) newGame();
+});
 els.reveal.addEventListener("click", () => endGame("reveal"));
 
 els.themes.addEventListener("change", (e) => {
@@ -837,7 +861,11 @@ els.themes.addEventListener("change", (e) => {
 });
 els.themes.addEventListener("submit", (e) => e.preventDefault());
 
-els.optThree.addEventListener("change", () => {
+els.optThree.addEventListener("change", async () => {
+  if (!(await confirmNewBoard())) {
+    els.optThree.checked = settings.allowThree;
+    return;
+  }
   settings.allowThree = els.optThree.checked;
   saveSettings();
   newGame(); // the rules changed, so start a fresh board under them
@@ -859,7 +887,7 @@ function openDialog(d) {
   d.showModal();
 }
 
-for (const d of [els.help, els.settings, els.share, els.homeTip]) {
+for (const d of [els.help, els.settings, els.share, els.homeTip, els.confirmNew]) {
   d.addEventListener("close", () => {
     if (!dialogOpen() && !document.hidden) resumeTimer();
   });
